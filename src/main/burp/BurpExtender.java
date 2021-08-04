@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+
 public class BurpExtender implements IBurpExtender, IExtensionStateListener
 {
     private IExtensionHelpers helpers;
@@ -24,7 +26,7 @@ public class BurpExtender implements IBurpExtender, IExtensionStateListener
         stdout.println("+---------------------------------------------------------+");
         stdout.println("|                  BURP Extension for FIDO                |");
         stdout.println("|                     Version 0.0.0                       |");
-        stdout.println("|                   Started @ " + time + "                    |");
+        stdout.println("|                   Started @ " + time + "                   |");
         stdout.println("+---------------------------------------------------------+");
 
 
@@ -34,6 +36,8 @@ public class BurpExtender implements IBurpExtender, IExtensionStateListener
        ReadMessage readMessage = new ReadMessage(callbacks);
         callbacks.registerHttpListener(readMessage);
         callbacks.registerProxyListener(readMessage);
+        UITab uitab = new UITab(callbacks);
+        callbacks.registerContextMenuFactory(uitab);
 
 //        UITab uiTab = new UITab(callbacks);
 

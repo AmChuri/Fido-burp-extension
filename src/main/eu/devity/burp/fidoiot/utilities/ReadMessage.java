@@ -65,25 +65,22 @@ public class ReadMessage implements  IHttpListener,IProxyListener {
                     flag = true;
                 }
             }
-            if(flag) {
-                Matcher m = Pattern.compile("(?=(sg))").matcher(messageBody);
-                List<Integer> pos = new ArrayList<Integer>();
-                while (m.find()) {
-                    pos.add(m.start());
-                }
-                for(int n:pos) {
-                    messageBody = modifyString(messageBody, n-diff);
-                }
-                stdout.println("Performing Signature exclusion attack");
-                stdout.println(rqInfo.getUrl());
-                byte[] updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
-                messageInfo.setRequest(updateMessage);
-                stdout.println(messageInfo.getResponse());
-            }
+//            if(flag) {
+//                Matcher m = Pattern.compile("(?=(sg))").matcher(messageBody);
+//                List<Integer> pos = new ArrayList<Integer>();
+//                while (m.find()) {
+//                    pos.add(m.start());
+//                }
+//                for(int n:pos) {
+//                    messageBody = modifyString(messageBody, diff);
+//                }
+//                stdout.println("Performing Signature exclusion attack");
+//                stdout.println(rqInfo.getUrl());
+//                byte[] updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
+//                messageInfo.setRequest(updateMessage);
+//                stdout.println(messageInfo.getResponse());
+//            }
 
-        }
-        else {
-            stdout.println("");
         }
     }
 
