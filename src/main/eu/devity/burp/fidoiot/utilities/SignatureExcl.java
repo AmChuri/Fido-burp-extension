@@ -54,7 +54,6 @@ public class SignatureExcl {
         for (IParameter param : requestInfo.getParameters()) {
             // parameter with empty signature
             if (param.getName().matches("sg")) {
-                stdout.println("Entered");
                 requestResponse.setHighlight("red");
                 flag = true;
             }
@@ -66,7 +65,7 @@ public class SignatureExcl {
             while (m.find()) {
                 pos.add(m.start());
             }
-            stdout.println(pos);
+
             for(int n:pos) {
                 messageBody = modifyString(messageBody, (n-diff));
             }
@@ -75,6 +74,9 @@ public class SignatureExcl {
             stdout.println(requestInfo.getUrl());
             byte[] updateMessage = helpers.buildHttpMessage(requestInfo.getHeaders(), messageBody.getBytes());
             requestResponse.setRequest(updateMessage);
+
+            IHttpService httpService = requestResponse.getHttpService();
+            callbacks.makeHttpRequest(httpService, requestResponse.getRequest());
 
             stdout.println(requestResponse.getResponse());
         }
