@@ -16,6 +16,7 @@ public class AttackTab extends JPanel{
     private static PrintWriter stdout;
     private final IBurpExtenderCallbacks callbacks;
     private final IExtensionHelpers helpers;
+    private static final Logger loggerInstance = Logger.getInstance();
 
     private IHttpRequestResponse requestResponse;
     private IRequestInfo requestInfo;
@@ -24,13 +25,10 @@ public class AttackTab extends JPanel{
 
     private javax.swing.JLabel tabhead;
 
-
-
-
     private javax.swing.JComboBox<String> attackList;
     private javax.swing.JLabel attackListLabel;
-    private javax.swing.JLabel typeLabel;
-    private javax.swing.JLabel typeValue;
+    private javax.swing.JLabel typeLabel, typeValue;
+//    private javax.swing.JLabel typeValue;
     private javax.swing.JTextArea inputValue, customInputValue;
 
     public AttackTab(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
@@ -120,13 +118,14 @@ public class AttackTab extends JPanel{
                                 )
                 )
         );
+        loggerInstance.log(getClass(), "Added Message to UI TAB", Logger.LogLevel.INFO);
 
     }
 
     private void performAttack(java.awt.event.ActionEvent evt) {
 
         stdout.println(requestInfo.getUrl());
-
+        loggerInstance.log(getClass(), "Clicked on Button", Logger.LogLevel.INFO);
         sigExcl.signatureAttack();
 
     }
