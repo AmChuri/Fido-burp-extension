@@ -90,7 +90,6 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
                 @Override
                 public void actionPerformed(ActionEvent evt) {
                     try {
-                        stdout.println("clicked");
                         IRequestInfo requestInfo = helpers.analyzeRequest(message);
                         int port = httpService.getPort();
 

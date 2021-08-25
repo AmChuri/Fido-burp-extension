@@ -6,6 +6,11 @@ repositories {
 
 dependencies {
     compile 'net.portswigger.burp.extender:burp-extender-api:1.7.13'
+    // a dependency on Jackson Databind
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.9'
+
+    // and a dependency on vert.x
+    implementation 'io.vertx:vertx-core:3.5.3'
 }
 
 sourceSets {

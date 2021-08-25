@@ -31,6 +31,8 @@ public class AttackTab extends JPanel{
 //    private javax.swing.JLabel typeValue;
     private javax.swing.JTextArea inputValue, customInputValue;
 
+    private JScrollPane textScrollPane, customInputScrollPane;
+
     public AttackTab(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
 
         this.callbacks = callbacks;
@@ -38,6 +40,7 @@ public class AttackTab extends JPanel{
         this.requestResponse = message;
         this.requestInfo = helpers.analyzeRequest(message);
         this.stdout = new PrintWriter(callbacks.getStdout(), true);
+
 
         sigExcl = new SignatureExcl(callbacks, message);
         initComponents();
@@ -60,22 +63,44 @@ public class AttackTab extends JPanel{
         String request = new String(requestResponse.getRequest());
         String messageBody = request.substring(requestInfo.getBodyOffset());
 
-        inputValue = new javax.swing.JTextArea(messageBody);
-        customInputValue = new javax.swing.JTextArea();
+        inputValue = new javax.swing.JTextArea(request);
+        customInputValue = new javax.swing.JTextArea(messageBody);
         customInputValue.setRows(2);
         customInputValue.setColumns(2);
         inputValue.setRows(10);
         inputValue.setColumns(15);
         inputValue.setBounds(10,30, 200,200);
 
+
+        textScrollPane= new JScrollPane(inputValue);
+        textScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        textScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        customInputScrollPane= new JScrollPane(customInputValue);
+        customInputScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        customInputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+
         JComboBox cb=new JComboBox(attackType);
 
         JButton button = new JButton("Attack");
         JButton modify = new JButton("Modify Request");
+        JButton autoAttack = new JButton("Auto Attack");
 
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 performAttack(evt);
+            }
+        });
+
+        modify.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modifyReuest(evt);
+            }
+        });
+        autoAttack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                autoAttackSigExcl(evt);
             }
         });
 
@@ -89,12 +114,20 @@ public class AttackTab extends JPanel{
                         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(cb,javax.swing.GroupLayout.PREFERRED_SIZE, 351,
                                 javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(typeLabel))
-                .addComponent(inputValue)
+                        .addComponent(typeLabel)
+//                                .addComponent(attackListLabel)
+                        )
+//                .addComponent(inputValue,javax.swing.GroupLayout.PREFERRED_SIZE, 800,
+//                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(textScrollPane,javax.swing.GroupLayout.PREFERRED_SIZE, 800,
+                                javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(customInputValue)
+//                        .addComponent(customInputValue,javax.swing.GroupLayout.PREFERRED_SIZE, 750,
+//                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(customInputScrollPane,javax.swing.GroupLayout.PREFERRED_SIZE, 750,
+                                        javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createSequentialGroup()
-                        .addComponent(button).addComponent(modify))
+                        .addComponent(button).addComponent(modify).addComponent(autoAttack))
             )
         );
 
@@ -107,13 +140,19 @@ public class AttackTab extends JPanel{
                                 .addComponent(typeLabel,javax.swing.GroupLayout.PREFERRED_SIZE, 200,
                                         javax.swing.GroupLayout.PREFERRED_SIZE)
                                 )
-                                .addComponent(inputValue,javax.swing.GroupLayout.PREFERRED_SIZE, 400,
+//                                .addComponent(attackListLabel,javax.swing.GroupLayout.PREFERRED_SIZE, 200,
+//                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+//                                .addComponent(inputValue,javax.swing.GroupLayout.PREFERRED_SIZE, 400,
+//                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(textScrollPane,javax.swing.GroupLayout.PREFERRED_SIZE, 400,
                                         javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGroup(layout.createSequentialGroup().
-                                        addComponent(customInputValue,javax.swing.GroupLayout.PREFERRED_SIZE, 100,
-                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+//                                        addComponent(customInputValue,javax.swing.GroupLayout.PREFERRED_SIZE, 100,
+//                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                 addComponent(customInputScrollPane,javax.swing.GroupLayout.PREFERRED_SIZE, 200,
+        javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(button).addComponent(modify)
+                                        .addComponent(button).addComponent(modify).addComponent(autoAttack)
                                         )
                                 )
                 )
@@ -122,13 +161,32 @@ public class AttackTab extends JPanel{
 
     }
 
-    private void performAttack(java.awt.event.ActionEvent evt) {
+    /**
+     * Perform Attack on Button click
+     * @param evt
+     */
 
-        stdout.println(requestInfo.getUrl());
-        loggerInstance.log(getClass(), "Clicked on Button", Logger.LogLevel.INFO);
-        sigExcl.signatureAttack();
+    private void performAttack(java.awt.event.ActionEvent evt) {
+        loggerInstance.log(getClass(), "Performing Manuel Attack", Logger.LogLevel.INFO);
+        String modText=inputValue.getText();
+        byte[] updatedReq = sigExcl.generateRequest(modText);
+        sigExcl.sendAttackReq();
 
     }
+
+    private void modifyReuest(java.awt.event.ActionEvent evt) {
+        loggerInstance.log(getClass(), "Request was modified", Logger.LogLevel.INFO);
+        String modText=customInputValue.getText();
+        byte[] updatedReq = sigExcl.generateRequest(modText);
+        String test = new String(updatedReq);
+        inputValue.setText(test);
+    }
+
+    private void autoAttackSigExcl(java.awt.event.ActionEvent evt){
+        sigExcl.autoAttackSigExcl();
+    }
+
+
 
 
 }
