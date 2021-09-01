@@ -57,7 +57,8 @@ public class SignatureExcl {
 
 
 //        String request = new String(requestResponse.getRequest());
-//        String messageBody = request.substring(requestInfo.getBodyOffset());
+//        String messageBody = request.substrin
+//        g(requestInfo.getBodyOffset());
 //        byte[] updateMessage = helpers.buildHttpMessage(requestInfo.getHeaders(), messageBody.getBytes());
 //        requestResponse.setRequest(updateMessage);
 

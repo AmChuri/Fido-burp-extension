@@ -21,7 +21,9 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableModel;
 
-
+/**
+ * Main UI Tab calling all the other classes
+ */
 public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
 
 
@@ -35,6 +37,10 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
     private IMessageEditor requestViewer;
     private IMessageEditor responseViewer;
     private AttackTab attackTab;
+
+    private SignatureTab signatureTab;
+    private LoggerTab loggerTab;
+
     private javax.swing.JLabel tabhead;
     private IHttpRequestResponse currentlyDisplayedItem;
 
@@ -54,10 +60,14 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
     private void initComponents() {
 
         stdout.println("Initialize UI");
+        signatureTab = new SignatureTab(callbacks);
+        loggerTab = new LoggerTab(callbacks);
         // Use Burp UI settings and add as extension tab
         callbacks.customizeUiComponent(this);
         callbacks.addSuiteTab(this);
-        this.addTab("Attack", attackerTabGroup);
+        this.addTab("Attacks", attackerTabGroup);
+        this.addTab("Signature", signatureTab);
+        this.addTab("Logger", loggerTab);
 //        attackerTabGroup.addTab("TEST",  new TestTab());
     }
 
