@@ -28,10 +28,25 @@ public class AttackTab extends JPanel{
     private javax.swing.JComboBox<String> attackList;
     private javax.swing.JLabel attackListLabel;
     private javax.swing.JLabel typeLabel, typeValue;
+    private JComboBox cb;
+
+    private javax.swing.JLabel proxyLabel, proxyURL, proxyPort;
+    private javax.swing.JLabel hostHeaderLabel;
+
 //    private javax.swing.JLabel typeValue;
     private javax.swing.JTextArea inputValue, customInputValue;
+    private javax.swing.JTextField inputProxyURL, inputProxyPort;
 
     private JScrollPane textScrollPane, customInputScrollPane;
+
+    private SSRFAttack ssrfAttack;
+
+    //need to implement
+//    public enum AttackType {
+//        Si,
+//        INFO,
+//        DEBUG
+//    }
 
     public AttackTab(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
 
@@ -43,6 +58,7 @@ public class AttackTab extends JPanel{
 
 
         sigExcl = new SignatureExcl(callbacks, message);
+        ssrfAttack = new SSRFAttack(callbacks, message);
         initComponents();
 
     }
@@ -81,11 +97,42 @@ public class AttackTab extends JPanel{
         customInputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
 
-        JComboBox cb=new JComboBox(attackType);
+        cb=new JComboBox(attackType);
 
         JButton button = new JButton("Attack");
         JButton modify = new JButton("Modify Request");
         JButton autoAttack = new JButton("Auto Attack");
+
+        // SSRf WIP
+        proxyLabel = new javax.swing.JLabel();
+        proxyURL = new javax.swing.JLabel();
+        proxyPort = new javax.swing.JLabel();
+        proxyLabel.setText("Proxy: ");
+        proxyURL.setText("Proxy URL");
+        proxyPort.setText("Proxy Port");
+
+        inputProxyURL=new JTextField("Add original Request URL");
+        inputProxyURL.setBounds(50,50, 10,10);
+        inputProxyPort=new JTextField("Add original Request Port");
+        inputProxyPort.setBounds(50,50, 10,10);
+
+        JButton hostheaderSSRFBtn = new JButton("Host Header Attack");
+        JButton protocolsmugBtn = new JButton("Protocol Smuggling Attack");
+        hostheaderSSRFBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                String modText=customInputValue.getText();
+                ssrfAttack.hostheaderAttack(modText);
+            }
+        });
+        protocolsmugBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                String modText=customInputValue.getText();
+                ssrfAttack.protcolSmugAttack(modText);
+            }
+        });
+
+
+        JButton button1 = new JButton("test");
 
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -128,6 +175,10 @@ public class AttackTab extends JPanel{
                                         javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createSequentialGroup()
                         .addComponent(button).addComponent(modify).addComponent(autoAttack))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(proxyLabel)
+                                        .addComponent(proxyURL).addComponent(hostheaderSSRFBtn)
+                                        .addComponent(proxyPort).addComponent(protocolsmugBtn))
             )
         );
 
@@ -154,6 +205,11 @@ public class AttackTab extends JPanel{
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(button).addComponent(modify).addComponent(autoAttack)
                                         )
+                                                .addGroup(layout.createSequentialGroup()
+                                                        .addComponent(proxyLabel)
+                                                        .addComponent(proxyURL).addComponent(hostheaderSSRFBtn)
+                                                        .addComponent(proxyPort).addComponent(protocolsmugBtn)
+                                                )
                                 )
                 )
         );
@@ -183,7 +239,14 @@ public class AttackTab extends JPanel{
     }
 
     private void autoAttackSigExcl(java.awt.event.ActionEvent evt){
-        sigExcl.autoAttackSigExcl();
+        int data = cb.getSelectedIndex();
+        loggerInstance.log(getClass(), Integer.toString(data), Logger.LogLevel.INFO);
+        if(data == 0){
+            sigExcl.autoAttackSigExcl();
+        } else{
+
+        }
+
     }
 
 

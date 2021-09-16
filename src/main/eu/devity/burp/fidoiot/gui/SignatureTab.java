@@ -39,7 +39,7 @@ import java.util.Base64;
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
 
-
+// used to compute signature from privkey
 public class SignatureTab extends javax.swing.JPanel{
 
     private final IBurpExtenderCallbacks callbacks;
@@ -48,6 +48,7 @@ public class SignatureTab extends javax.swing.JPanel{
 
     private javax.swing.JTextArea bodyInput, keyInput, signatureOutput;
     private JScrollPane bodyScrollPane, keyScrollPane, outputScrollPane;
+    private javax.swing.JLabel inputLabel, outputLabel, privKeyLabel;
     JButton button;
 
     public SignatureTab(IBurpExtenderCallbacks callbacks) {
@@ -108,7 +109,7 @@ public class SignatureTab extends javax.swing.JPanel{
                                         .addGroup(layout.createSequentialGroup()
                                                 .addComponent(button))
                         )
-                        .addComponent(signatureOutput,javax.swing.GroupLayout.PREFERRED_SIZE, 700,
+                        .addComponent(outputScrollPane,javax.swing.GroupLayout.PREFERRED_SIZE, 700,
                                 javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
@@ -123,7 +124,7 @@ public class SignatureTab extends javax.swing.JPanel{
                                                         .addComponent(button)
                                                 )
                                 )
-                                .addComponent(signatureOutput,javax.swing.GroupLayout.PREFERRED_SIZE, 400,
+                                .addComponent(outputScrollPane,javax.swing.GroupLayout.PREFERRED_SIZE, 400,
                                         javax.swing.GroupLayout.PREFERRED_SIZE)
                 )
         );
@@ -139,12 +140,14 @@ public class SignatureTab extends javax.swing.JPanel{
 
 
         try {
-            KeyFactory kf = KeyFactory.getInstance("RSA");
+            KeyFactory kf = KeyFactory.getInstance("EC");
             PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyContent));
+            loggerInstance.log(getClass(), privateKeyContent, Logger.LogLevel.INFO);
+
             PrivateKey privKey = kf.generatePrivate(keySpecPKCS8);
 
-//            loggerInstance.log(getClass(), test, Logger.LogLevel.INFO);
-            Signature signature = Signature.getInstance("SHA256withRSA");
+//            loggerInstance.log(getClass(), test, Logger.LogLevel.INFO); SHA256withECDSA
+            Signature signature = Signature.getInstance("SHA256withECDSA");
             signature.initSign(privKey);
 
             signature.update(modText.getBytes());

