@@ -30,7 +30,7 @@ public class AttackTab extends JPanel{
     private javax.swing.JLabel typeLabel, typeValue;
     private JComboBox cb;
 
-    private javax.swing.JLabel proxyLabel, proxyURL, proxyPort;
+    private javax.swing.JLabel proxyLabel, proxyURLLabel, proxyPortLabel;
     private javax.swing.JLabel hostHeaderLabel;
 
 //    private javax.swing.JLabel typeValue;
@@ -105,16 +105,15 @@ public class AttackTab extends JPanel{
 
         // SSRf WIP
         proxyLabel = new javax.swing.JLabel();
-        proxyURL = new javax.swing.JLabel();
-        proxyPort = new javax.swing.JLabel();
+        proxyURLLabel = new javax.swing.JLabel();
+        proxyPortLabel = new javax.swing.JLabel();
         proxyLabel.setText("Proxy: ");
-        proxyURL.setText("Proxy URL");
-        proxyPort.setText("Proxy Port");
+        proxyURLLabel.setText("Proxy URL");
+        proxyPortLabel.setText("Proxy Port");
+        inputProxyURL = new JTextField();
+        inputProxyPort = new JTextField();
 
-        inputProxyURL=new JTextField("Add original Request URL");
-        inputProxyURL.setBounds(50,50, 10,10);
-        inputProxyPort=new JTextField("Add original Request Port");
-        inputProxyPort.setBounds(50,50, 10,10);
+
 
         JButton hostheaderSSRFBtn = new JButton("Host Header Attack");
         JButton protocolsmugBtn = new JButton("Protocol Smuggling Attack");
@@ -177,8 +176,15 @@ public class AttackTab extends JPanel{
                         .addComponent(button).addComponent(modify).addComponent(autoAttack))
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(proxyLabel)
-                                        .addComponent(proxyURL).addComponent(hostheaderSSRFBtn)
-                                        .addComponent(proxyPort).addComponent(protocolsmugBtn))
+                                        .addGroup(layout.createSequentialGroup()
+                                        .addComponent(proxyURLLabel).addComponent(inputProxyURL, 20, 30, 200))
+                                        .addGroup(layout.createSequentialGroup()
+                                        .addComponent(proxyPortLabel).addComponent(inputProxyPort, 20, 30, 60))
+                                )
+                                .addGroup(layout.createSequentialGroup()
+                                        .addComponent(hostheaderSSRFBtn)
+                                        .addComponent(protocolsmugBtn)
+                                )
             )
         );
 
@@ -203,12 +209,17 @@ public class AttackTab extends JPanel{
                                  addComponent(customInputScrollPane,javax.swing.GroupLayout.PREFERRED_SIZE, 200,
         javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(button).addComponent(modify).addComponent(autoAttack)
-                                        )
+                                        .addComponent(button).addComponent(modify).addComponent(autoAttack))
                                                 .addGroup(layout.createSequentialGroup()
                                                         .addComponent(proxyLabel)
-                                                        .addComponent(proxyURL).addComponent(hostheaderSSRFBtn)
-                                                        .addComponent(proxyPort).addComponent(protocolsmugBtn)
+                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(proxyURLLabel)
+                                                        .addComponent(inputProxyURL, 20, 30, 30))
+                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(proxyPortLabel).addComponent(inputProxyPort, 20, 30, 30))
+                                                )
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(hostheaderSSRFBtn).addComponent(protocolsmugBtn)
                                                 )
                                 )
                 )
