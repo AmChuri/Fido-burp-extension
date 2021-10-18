@@ -93,11 +93,16 @@ public class SSRFAttack {
         String request = new String(requestResponse.getRequest());
         String messageBody = request.substring(requestInfo.getBodyOffset());
 
+        loggerInstance.log(getClass(), modText , Logger.LogLevel.INFO);
+        loggerInstance.log(getClass(), messageBody , Logger.LogLevel.INFO);
 //        IHttpService httpService = requestResponse.getHttpService();
-        this.httpService = helpers.buildHttpService("127.0.0.1",8055,this.httpService.getProtocol());
+        // for proxy set http service
 
-        updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
-        loggerInstance.log(getClass(), temp.toString()  , Logger.LogLevel.INFO);
+        this.httpService = helpers.buildHttpService("127.0.0.1",8054,this.httpService.getProtocol());
+
+        loggerInstance.log(getClass(), temp.toString() , Logger.LogLevel.INFO);
+//        updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes()); // uses this.current message body
+        updateMessage = helpers.buildHttpMessage(headers, modText.getBytes());
         this.sendAttackReq();
 
     }

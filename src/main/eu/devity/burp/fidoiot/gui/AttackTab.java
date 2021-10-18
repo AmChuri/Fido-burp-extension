@@ -108,8 +108,8 @@ public class AttackTab extends JPanel{
         proxyURLLabel = new javax.swing.JLabel();
         proxyPortLabel = new javax.swing.JLabel();
         proxyLabel.setText("Proxy: ");
-        proxyURLLabel.setText("Proxy URL");
-        proxyPortLabel.setText("Proxy Port");
+        proxyURLLabel.setText("Proxy URL:");
+        proxyPortLabel.setText("Proxy Port:");
         inputProxyURL = new JTextField();
         inputProxyPort = new JTextField();
 
