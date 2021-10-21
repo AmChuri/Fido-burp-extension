@@ -86,7 +86,7 @@ public class SSRFAttack {
 
 
 
-    public void protcolSmugAttack(String modText){
+    public void protcolSmugAttack(String modText, boolean isProxy, String proxyDNS, int proxyPort){
         loggerInstance.log(getClass(), "Executing Protocol Smuggling SSRF Attack"  , Logger.LogLevel.INFO);
         URL temp = requestInfo.getUrl();
         List<String> headers = requestInfo.getHeaders();
@@ -97,8 +97,11 @@ public class SSRFAttack {
         loggerInstance.log(getClass(), messageBody , Logger.LogLevel.INFO);
 //        IHttpService httpService = requestResponse.getHttpService();
         // for proxy set http service
+        // hard coded dns and port need to take value from the user
+        if(isProxy){
+            this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
+        }
 
-        this.httpService = helpers.buildHttpService("127.0.0.1",8054,this.httpService.getProtocol());
 
         loggerInstance.log(getClass(), temp.toString() , Logger.LogLevel.INFO);
 //        updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes()); // uses this.current message body

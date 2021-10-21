@@ -31,6 +31,8 @@ public class AttackTab extends JPanel{
     private JComboBox cb;
 
     private javax.swing.JLabel proxyLabel, proxyURLLabel, proxyPortLabel;
+    private JCheckBox proxycheckbx;
+    private boolean proxySet;
     private javax.swing.JLabel hostHeaderLabel;
 
 //    private javax.swing.JLabel typeValue;
@@ -39,7 +41,9 @@ public class AttackTab extends JPanel{
 
     private JScrollPane textScrollPane, customInputScrollPane;
 
+
     private SSRFAttack ssrfAttack;
+
 
     //need to implement
 //    public enum AttackType {
@@ -110,11 +114,16 @@ public class AttackTab extends JPanel{
         proxyLabel.setText("Proxy: ");
         proxyURLLabel.setText("Proxy URL:");
         proxyPortLabel.setText("Proxy Port:");
+        proxycheckbx = new JCheckBox();
         inputProxyURL = new JTextField();
         inputProxyPort = new JTextField();
 
-
-
+        // Proxy checkbox listener
+        proxycheckbx.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                proxySet = true;
+            }
+        });
         JButton hostheaderSSRFBtn = new JButton("Host Header Attack");
         JButton protocolsmugBtn = new JButton("Protocol Smuggling Attack");
         hostheaderSSRFBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -126,7 +135,12 @@ public class AttackTab extends JPanel{
         protocolsmugBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 String modText=customInputValue.getText();
-                ssrfAttack.protcolSmugAttack(modText);
+                if(proxySet){
+                    ssrfAttack.protcolSmugAttack(modText,proxySet,inputProxyURL.getText(),Integer.parseInt(inputProxyPort.getText()));
+                } else {
+                    ssrfAttack.protcolSmugAttack(modText,proxySet,"0",0);
+                }
+
             }
         });
 
@@ -175,7 +189,7 @@ public class AttackTab extends JPanel{
                         .addGroup(layout.createSequentialGroup()
                         .addComponent(button).addComponent(modify).addComponent(autoAttack))
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(proxyLabel)
+                                        .addComponent(proxyLabel).addComponent(proxycheckbx)
                                         .addGroup(layout.createSequentialGroup()
                                         .addComponent(proxyURLLabel).addComponent(inputProxyURL, 20, 30, 200))
                                         .addGroup(layout.createSequentialGroup()
@@ -183,6 +197,7 @@ public class AttackTab extends JPanel{
                                 )
                                 .addGroup(layout.createSequentialGroup()
                                         .addComponent(hostheaderSSRFBtn)
+                                ).addGroup(layout.createSequentialGroup()
                                         .addComponent(protocolsmugBtn)
                                 )
             )
@@ -211,7 +226,7 @@ public class AttackTab extends JPanel{
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(button).addComponent(modify).addComponent(autoAttack))
                                                 .addGroup(layout.createSequentialGroup()
-                                                        .addComponent(proxyLabel)
+                                                        .addComponent(proxyLabel).addComponent(proxycheckbx)
                                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                         .addComponent(proxyURLLabel)
                                                         .addComponent(inputProxyURL, 20, 30, 30))
@@ -219,7 +234,10 @@ public class AttackTab extends JPanel{
                                                         .addComponent(proxyPortLabel).addComponent(inputProxyPort, 20, 30, 30))
                                                 )
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                        .addComponent(hostheaderSSRFBtn).addComponent(protocolsmugBtn)
+                                                        .addComponent(hostheaderSSRFBtn)
+                                                )
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(protocolsmugBtn)
                                                 )
                                 )
                 )
