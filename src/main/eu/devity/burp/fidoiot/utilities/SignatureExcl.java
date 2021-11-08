@@ -89,13 +89,13 @@ public class SignatureExcl {
             stdout.println("Performing Signature exclusion attack");
             stdout.println(messageBody);
             stdout.println(requestInfo.getUrl());
-            byte[] updateMessage = helpers.buildHttpMessage(requestInfo.getHeaders(), messageBody.getBytes());
-            requestResponse.setRequest(updateMessage);
-
-            IHttpService httpService = requestResponse.getHttpService();
-            callbacks.makeHttpRequest(httpService, requestResponse.getRequest());
-
-            stdout.println(requestResponse.getResponse());
+//            byte[] updateMessage = helpers.buildHttpMessage(requestInfo.getHeaders(), messageBody.getBytes());
+//            requestResponse.setRequest(updateMessage);
+//
+//            IHttpService httpService = requestResponse.getHttpService();
+//            callbacks.makeHttpRequest(httpService, requestResponse.getRequest());
+//
+//            stdout.println(requestResponse.getResponse());
         }
     }
 
@@ -127,7 +127,8 @@ public class SignatureExcl {
             messageBody = modifyString(messageBody, (n-diff));
         }
         updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
-        this.sendAttackReq();
+        // WIP to add proxy
+       // this.sendAttackReq();
     }
 
     /**
@@ -136,8 +137,14 @@ public class SignatureExcl {
      * @return
      */
 
-    public byte[] generateRequest(String modText){
-        List headers = requestInfo.getHeaders();
+    public byte[] generateRequest(String modText, boolean isProxy, String proxyDNS, int proxyPort){
+        //List headers = requestInfo.getHeaders();
+        List<String> headers = requestInfo.getHeaders();
+        String request = new String(requestResponse.getRequest());
+        String messageBody = request.substring(requestInfo.getBodyOffset());
+        if(isProxy){
+            this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
+        }
         updateMessage = helpers.buildHttpMessage(headers, modText.getBytes());
         return updateMessage;
     }

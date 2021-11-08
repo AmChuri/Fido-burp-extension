@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 public class SSRFAttack {
 
@@ -49,7 +50,7 @@ public class SSRFAttack {
         this.httpService = message.getHttpService();
     }
 
-    public void hostheaderAttack(String modText){
+    public void hostheaderAttack(String modText, boolean isProxy, String proxyDNS, int proxyPort){
         loggerInstance.log(getClass(), "Executing Host Header SSRF Attack"  , Logger.LogLevel.INFO);
         List<String> headers = requestInfo.getHeaders();
         String request = new String(requestResponse.getRequest());
@@ -80,6 +81,9 @@ public class SSRFAttack {
         }
         loggerInstance.log(getClass(), headers.toString()  , Logger.LogLevel.INFO);
 
+        if(isProxy){
+            this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
+        }
         updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
         this.sendAttackReq();
     }
@@ -100,6 +104,26 @@ public class SSRFAttack {
         // hard coded dns and port need to take value from the user
         if(isProxy){
             this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
+        }
+        loggerInstance.log(getClass(), "Header"  , Logger.LogLevel.INFO);
+        int i = 0;
+        headers.set(0, "POST /test HTTP/1.1");
+        for(String s: headers){
+            loggerInstance.log(getClass(), s  , Logger.LogLevel.INFO);
+            i++;
+        }
+
+        // protocol smuggling test
+
+        URL urlToTest;
+        byte[] test;
+        try {
+            urlToTest = new URL(this.httpService.getProtocol(), this.httpService.getHost(), this.httpService.getPort(), "/test");
+            test = helpers.buildHttpRequest(urlToTest);
+            String s1 = new String(test, StandardCharsets.UTF_8);
+            loggerInstance.log(getClass(), s1  , Logger.LogLevel.INFO);
+        } catch (MalformedURLException ex) {
+            loggerInstance.log(getClass(), "MalformedURLException"  , Logger.LogLevel.ERROR);
         }
 
 

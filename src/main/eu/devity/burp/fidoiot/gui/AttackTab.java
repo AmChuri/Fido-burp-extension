@@ -106,6 +106,7 @@ public class AttackTab extends JPanel{
         JButton button = new JButton("Attack");
         JButton modify = new JButton("Modify Request");
         JButton autoAttack = new JButton("Auto Attack");
+        JButton analyze = new JButton("Analyze");
 
         // SSRf WIP
         proxyLabel = new javax.swing.JLabel();
@@ -129,7 +130,11 @@ public class AttackTab extends JPanel{
         hostheaderSSRFBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 String modText=customInputValue.getText();
-                ssrfAttack.hostheaderAttack(modText);
+                if(proxySet){
+                    ssrfAttack.hostheaderAttack(modText,proxySet,inputProxyURL.getText(),Integer.parseInt(inputProxyPort.getText()));
+                } else {
+                    ssrfAttack.hostheaderAttack(modText,proxySet,"0",0);
+                }
             }
         });
         protocolsmugBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -149,13 +154,28 @@ public class AttackTab extends JPanel{
 
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                performAttack(evt);
+//                performAttack(evt);
+                if(proxySet){
+                    performAttack(evt,proxySet,inputProxyURL.getText(),Integer.parseInt(inputProxyPort.getText()));
+                } else {
+                    performAttack(evt,proxySet,"0",0);
+                }
+            }
+        });
+        analyze.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                analyzeMessage(evt);
             }
         });
 
         modify.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                modifyReuest(evt);
+//                    modifyRequest(evt);
+                if(proxySet){
+                    modifyRequest(evt,proxySet,inputProxyURL.getText(),Integer.parseInt(inputProxyPort.getText()));
+                } else {
+                    modifyRequest(evt,proxySet,"0",0);
+                }
             }
         });
         autoAttack.addActionListener(new java.awt.event.ActionListener() {
@@ -188,8 +208,11 @@ public class AttackTab extends JPanel{
                                         javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createSequentialGroup()
                         .addComponent(button).addComponent(modify).addComponent(autoAttack))
+                                .addGroup(layout.createSequentialGroup()
+                                        .addComponent(analyze))
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(proxyLabel).addComponent(proxycheckbx)
+                                        .addGroup(layout.createSequentialGroup()
+                                        .addComponent(proxyLabel).addComponent(proxycheckbx))
                                         .addGroup(layout.createSequentialGroup()
                                         .addComponent(proxyURLLabel).addComponent(inputProxyURL, 20, 30, 200))
                                         .addGroup(layout.createSequentialGroup()
@@ -225,8 +248,11 @@ public class AttackTab extends JPanel{
         javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(button).addComponent(modify).addComponent(autoAttack))
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(analyze))
                                                 .addGroup(layout.createSequentialGroup()
-                                                        .addComponent(proxyLabel).addComponent(proxycheckbx)
+                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(proxyLabel).addComponent(proxycheckbx))
                                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                         .addComponent(proxyURLLabel)
                                                         .addComponent(inputProxyURL, 20, 30, 30))
@@ -251,18 +277,19 @@ public class AttackTab extends JPanel{
      * @param evt
      */
 
-    private void performAttack(java.awt.event.ActionEvent evt) {
+    private void performAttack(java.awt.event.ActionEvent evt, boolean proxyVal, String proxyDNS, int proxyPort) {
         loggerInstance.log(getClass(), "Performing Manuel Attack", Logger.LogLevel.INFO);
-        String modText=inputValue.getText();
-        byte[] updatedReq = sigExcl.generateRequest(modText);
+//        String modText=inputValue.getText();
+        String modText=customInputValue.getText();
+        byte[] updatedReq = sigExcl.generateRequest(modText,proxyVal, proxyDNS, proxyPort);
         sigExcl.sendAttackReq();
 
     }
 
-    private void modifyReuest(java.awt.event.ActionEvent evt) {
+    private void modifyRequest(java.awt.event.ActionEvent evt, boolean proxyVal, String proxyDNS, int proxyPort) {
         loggerInstance.log(getClass(), "Request was modified", Logger.LogLevel.INFO);
         String modText=customInputValue.getText();
-        byte[] updatedReq = sigExcl.generateRequest(modText);
+        byte[] updatedReq = sigExcl.generateRequest(modText,proxyVal, proxyDNS, proxyPort);
         String test = new String(updatedReq);
         inputValue.setText(test);
     }
@@ -273,11 +300,19 @@ public class AttackTab extends JPanel{
         if(data == 0){
             sigExcl.autoAttackSigExcl();
         } else{
-
+            loggerInstance.log(getClass(), "test", Logger.LogLevel.INFO);
         }
-
     }
 
+    // analyze the message for type of attack
+    private void analyzeMessage(java.awt.event.ActionEvent evt){
+        int data = cb.getSelectedIndex();
+        loggerInstance.log(getClass(), "Analyzing the request", Logger.LogLevel.INFO);
+        String modText=customInputValue.getText();
+       // if(data == 0){
+            // check for sign excl
+        //}
+    }
 
 
 

@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.security.MessageDigest;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -38,7 +39,12 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.NoSuchProviderException;
+import java.io.UnsupportedEncodingException;
+import javax.crypto.*;
 import java.lang.reflect.Array;
+import javax.crypto.Cipher;
 
 // used to compute signature from privkey
 public class SignatureTab extends javax.swing.JPanel{
@@ -165,6 +171,7 @@ public class SignatureTab extends javax.swing.JPanel{
 
     }
 
+    // for private signature
     private void computeSignature(java.awt.event.ActionEvent evt) {
         loggerInstance.log(getClass(), "Compute Signature", Logger.LogLevel.INFO);
         String modText=bodyInput.getText();
@@ -181,26 +188,38 @@ public class SignatureTab extends javax.swing.JPanel{
         try {
             KeyFactory kf = KeyFactory.getInstance(keyinstanceType);
             PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyContent));
+//            X509EncodedKeySpec keySpecPKCS8 =
+//                    new X509EncodedKeySpec(Base64.getDecoder().decode(privateKeyContent));
             loggerInstance.log(getClass(), privateKeyContent, Logger.LogLevel.INFO);
 
             PrivateKey privKey = kf.generatePrivate(keySpecPKCS8);
+//            PublicKey privKey = kf.generatePublic(keySpecPKCS8);
 
-//            loggerInstance.log(getClass(), test, Logger.LogLevel.INFO); SHA256withECDSA
+//            loggerInstance.log(getClass(), test, Logger.LogLevel.INFO);
             Signature signature = Signature.getInstance(temp);
             signature.initSign(privKey);
 
-            signature.update(modText.getBytes());
+//            verify for public key
+//            signature.initVerify(privKey);
+//            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding","SunJCE");
+//            cipher.init(Cipher.ENCRYPT_MODE, privKey);
+//            byte[] digitalSignature = cipher.doFinal(modText.getBytes("UTF8"));
+//            String test = Base64.getEncoder().encodeToString(digitalSignature);
+//            signature.update(modText.getBytes());
             byte[] digitalSignature = signature.sign();
-
+//
             String test = Base64.getEncoder().encodeToString(digitalSignature);
             loggerInstance.log(getClass(), test, Logger.LogLevel.INFO);
             signatureOutput.setText(test);
 
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e){
+        }
+        catch (InvalidKeySpecException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e){
             loggerInstance.log(getClass(), e.toString(), Logger.LogLevel.ERROR);
             loggerInstance.log(getClass(), "Compute Signature this", Logger.LogLevel.ERROR);
         }
-
+// SignatureException
+        //NoSuchPaddingException
+        //                | IllegalBlockSizeException | BadPaddingException | NoSuchProviderException | UnsupportedEncodingException
 
 
 //        sigExcl.sendAttackReq();
