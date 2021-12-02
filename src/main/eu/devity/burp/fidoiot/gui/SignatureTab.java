@@ -205,7 +205,7 @@ public class SignatureTab extends javax.swing.JPanel{
 //            cipher.init(Cipher.ENCRYPT_MODE, privKey);
 //            byte[] digitalSignature = cipher.doFinal(modText.getBytes("UTF8"));
 //            String test = Base64.getEncoder().encodeToString(digitalSignature);
-//            signature.update(modText.getBytes());
+            signature.update(modText.getBytes());
             byte[] digitalSignature = signature.sign();
 //
             String test = Base64.getEncoder().encodeToString(digitalSignature);
