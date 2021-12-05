@@ -19,6 +19,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableModel;
+
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -95,8 +98,6 @@ public class SignatureTab extends javax.swing.JPanel{
     private void initComponents() {
         loggerInstance.log(getClass(), "Signature Tab Init", Logger.LogLevel.INFO);
 
-
-
         dropdown=new JComboBox(signatureType);
         dropdown.setSelectedItem("SHA256withECDSA");
 
@@ -132,7 +133,7 @@ public class SignatureTab extends javax.swing.JPanel{
         button = new JButton("Compute");
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                computeSignature(evt);
+                signaturData(evt);
             }
         });
 
@@ -171,20 +172,25 @@ public class SignatureTab extends javax.swing.JPanel{
 
     }
 
-    // for private signature
-    private void computeSignature(java.awt.event.ActionEvent evt) {
-        loggerInstance.log(getClass(), "Compute Signature", Logger.LogLevel.INFO);
+    // gather signature data required for computation
+    private void signaturData(java.awt.event.ActionEvent evt) {
         String modText=bodyInput.getText();
-        MessageDigest md;
         String privateKeyContent = keyInput.getText();
         privateKeyContent = privateKeyContent.replaceAll("\\n", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
-
         int selectedSignature = dropdown.getSelectedIndex();
         String temp = (String) Array.get(signatureType, selectedSignature);
         String keyinstanceType="EC";
         if(selectedSignature <=3 ){
             keyinstanceType="RSA";
         }
+        computeSignature(modText, privateKeyContent, keyinstanceType, temp);
+    }
+
+    // for private signature
+    private void computeSignature(String modText, String privateKeyContent, String keyinstanceType, String sigType) {
+        loggerInstance.log(getClass(), "Compute Signature", Logger.LogLevel.INFO);
+        MessageDigest md;
+        
         try {
             KeyFactory kf = KeyFactory.getInstance(keyinstanceType);
             PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyContent));
@@ -196,7 +202,7 @@ public class SignatureTab extends javax.swing.JPanel{
 //            PublicKey privKey = kf.generatePublic(keySpecPKCS8);
 
 //            loggerInstance.log(getClass(), test, Logger.LogLevel.INFO);
-            Signature signature = Signature.getInstance(temp);
+            Signature signature = Signature.getInstance(sigType);
             signature.initSign(privKey);
 
 //            verify for public key

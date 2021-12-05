@@ -30,16 +30,16 @@ public class AttackTab extends JPanel{
     private javax.swing.JLabel typeLabel, typeValue;
     private JComboBox cb;
 
-    private javax.swing.JLabel proxyLabel, proxyURLLabel, proxyPortLabel;
+    private javax.swing.JLabel proxyLabel, proxyURLLabel, proxyPortLabel, privaKeyLabel, autoInputLabel, autoInputValLabel, autoInputPortLabel;
     private JCheckBox proxycheckbx;
     private boolean proxySet;
     private javax.swing.JLabel hostHeaderLabel;
 
 //    private javax.swing.JLabel typeValue;
-    private javax.swing.JTextArea inputValue, customInputValue;
-    private javax.swing.JTextField inputProxyURL, inputProxyPort;
+    private javax.swing.JTextArea inputValue, customInputValue, privKeyField;
+    private javax.swing.JTextField inputProxyURL, inputProxyPort, autoInputField, autoInputPort;
 
-    private JScrollPane textScrollPane, customInputScrollPane;
+    private JScrollPane textScrollPane, customInputScrollPane, privKeyScrollPane;
 
 
     private SSRFAttack ssrfAttack;
@@ -72,6 +72,7 @@ public class AttackTab extends JPanel{
 
         typeLabel = new javax.swing.JLabel();
         attackListLabel = new javax.swing.JLabel();
+        privaKeyLabel = new javax.swing.JLabel();
         attackList = new javax.swing.JComboBox<>();
 
 
@@ -85,6 +86,12 @@ public class AttackTab extends JPanel{
 
         inputValue = new javax.swing.JTextArea(request);
         customInputValue = new javax.swing.JTextArea(messageBody);
+
+        // new field for adding private key
+        String temp = new String("");
+        privaKeyLabel.setText("Private Key");
+        privKeyField = new javax.swing.JTextArea(temp);
+
         customInputValue.setRows(2);
         customInputValue.setColumns(2);
         inputValue.setRows(10);
@@ -100,8 +107,22 @@ public class AttackTab extends JPanel{
         customInputScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         customInputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
+        // automatic key input
+        autoInputValLabel = new javax.swing.JLabel();
+        autoInputLabel= new javax.swing.JLabel();
+        autoInputPortLabel = new javax.swing.JLabel();
+        autoInputLabel.setText("Input: ");
+        autoInputValLabel.setText("Input Value:");
+        autoInputPortLabel.setText("Input Port:");
+        autoInputField = new JTextField();
+        autoInputPort = new JTextField();
 
-        cb=new JComboBox(attackType);
+        privKeyScrollPane= new JScrollPane(privKeyField);
+        privKeyScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        privKeyScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        
+
+        cb = new JComboBox(attackType);
 
         JButton button = new JButton("Attack");
         JButton modify = new JButton("Modify Request");
@@ -156,9 +177,9 @@ public class AttackTab extends JPanel{
             public void actionPerformed(java.awt.event.ActionEvent evt) {
 //                performAttack(evt);
                 if(proxySet){
-                    performAttack(evt,proxySet,inputProxyURL.getText(),Integer.parseInt(inputProxyPort.getText()));
+                    performAttack(evt,messageBody,proxySet,inputProxyURL.getText(),Integer.parseInt(inputProxyPort.getText()));
                 } else {
-                    performAttack(evt,proxySet,"0",0);
+                    performAttack(evt,messageBody,proxySet,"0",0);
                 }
             }
         });
@@ -195,6 +216,9 @@ public class AttackTab extends JPanel{
                         .addComponent(cb,javax.swing.GroupLayout.PREFERRED_SIZE, 351,
                                 javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(typeLabel)
+                        .addComponent(privaKeyLabel)
+                        .addComponent(privKeyScrollPane,javax.swing.GroupLayout.PREFERRED_SIZE, 350,
+                                javax.swing.GroupLayout.PREFERRED_SIZE)
 //                                .addComponent(attackListLabel)
                         )
 //                .addComponent(inputValue,javax.swing.GroupLayout.PREFERRED_SIZE, 800,
@@ -210,6 +234,15 @@ public class AttackTab extends JPanel{
                         .addComponent(button).addComponent(modify).addComponent(autoAttack))
                                 .addGroup(layout.createSequentialGroup()
                                         .addComponent(analyze))
+                                        // automatic  input value
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                        .addComponent(autoInputLabel))
+                                        .addGroup(layout.createSequentialGroup()
+                                        .addComponent(autoInputValLabel).addComponent(autoInputField, 20, 30, 200))
+                                        .addGroup(layout.createSequentialGroup()
+                                        .addComponent(autoInputPortLabel).addComponent(autoInputPort, 20, 30, 60))
+                                )
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(layout.createSequentialGroup()
                                         .addComponent(proxyLabel).addComponent(proxycheckbx))
@@ -232,7 +265,11 @@ public class AttackTab extends JPanel{
                                 .addGroup(layout.createSequentialGroup()
                                 .addComponent(cb,javax.swing.GroupLayout.PREFERRED_SIZE, 25,
                                         javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(typeLabel,javax.swing.GroupLayout.PREFERRED_SIZE, 200,
+                                .addComponent(typeLabel,javax.swing.GroupLayout.PREFERRED_SIZE, 100,
+                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(privaKeyLabel,javax.swing.GroupLayout.PREFERRED_SIZE, 25,
+                                        javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(privKeyScrollPane,javax.swing.GroupLayout.PREFERRED_SIZE, 200,
                                         javax.swing.GroupLayout.PREFERRED_SIZE)
                                 )
 //                                .addComponent(attackListLabel,javax.swing.GroupLayout.PREFERRED_SIZE, 200,
@@ -250,6 +287,16 @@ public class AttackTab extends JPanel{
                                         .addComponent(button).addComponent(modify).addComponent(autoAttack))
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                         .addComponent(analyze))
+                                                // automatic input
+                                                .addGroup(layout.createSequentialGroup()
+                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(autoInputLabel))
+                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(autoInputValLabel)
+                                                        .addComponent(autoInputField, 20, 30, 30))
+                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(autoInputPortLabel).addComponent(autoInputPort, 20, 30, 30))
+                                                )
                                                 .addGroup(layout.createSequentialGroup()
                                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                         .addComponent(proxyLabel).addComponent(proxycheckbx))
@@ -277,12 +324,22 @@ public class AttackTab extends JPanel{
      * @param evt
      */
 
-    private void performAttack(java.awt.event.ActionEvent evt, boolean proxyVal, String proxyDNS, int proxyPort) {
+    private void performAttack(java.awt.event.ActionEvent evt, String messageBody, boolean proxyVal, String proxyDNS, int proxyPort) {
         loggerInstance.log(getClass(), "Performing Manuel Attack", Logger.LogLevel.INFO);
 //        String modText=inputValue.getText();
+        int data = cb.getSelectedIndex();
         String modText=customInputValue.getText();
-        byte[] updatedReq = sigExcl.generateRequest(modText,proxyVal, proxyDNS, proxyPort);
-        sigExcl.sendAttackReq();
+        if(data == 0){
+            byte[] updatedReq = sigExcl.generateRequest(modText,proxyVal, proxyDNS, proxyPort);
+            sigExcl.sendAttackReq();
+        } else{
+            // wip ssrf attack
+            String privKey = privKeyField.getText();
+            String inputVal = autoInputField.getText();
+            String inputPort = autoInputPort.getText();
+            ssrfAttack.autoAttack(messageBody,privKey, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
+            loggerInstance.log(getClass(), "test", Logger.LogLevel.INFO);
+        }
 
     }
 
@@ -309,9 +366,16 @@ public class AttackTab extends JPanel{
         int data = cb.getSelectedIndex();
         loggerInstance.log(getClass(), "Analyzing the request", Logger.LogLevel.INFO);
         String modText=customInputValue.getText();
-       // if(data == 0){
+       if(data == 0){
             // check for sign excl
-        //}
+            loggerInstance.log(getClass(), "Analyzing Sign Excl", Logger.LogLevel.INFO);
+        } else if(data == 1){
+            // check for keyconf
+            loggerInstance.log(getClass(), "Analyzing keyconf", Logger.LogLevel.INFO);
+        } else{
+            // check for SSRF
+            loggerInstance.log(getClass(), "Analyzing SSRF", Logger.LogLevel.INFO);
+        }
     }
 
 
