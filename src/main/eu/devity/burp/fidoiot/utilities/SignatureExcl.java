@@ -156,6 +156,49 @@ public class SignatureExcl {
         attackRequestExecutor.execute();
     }
 
+    /**
+     * Auto attack for sign exclusion
+     */
+    public void autoAttack(String bodyTxt, String inputVal, boolean proxyVal, String proxyDNS, int proxyPort) {
+        List<String> headers = requestInfo.getHeaders();
+        Integer msgType = 0;
+        for(String header : headers){
+            if(header.contains("msg/22")){
+                msgType = 22;
+                break;
+            }
+            if(header.contains("msg/32")){
+                msgType = 32;
+                break;
+            }
+            if(header.contains("msg/44")){
+                msgType = 44;
+                break;
+            }
+         }
+         int temp; 
+         String closingTag, newStr;
+         if(msgType == 22){
+            int tempbod =  bodyTxt.indexOf("\"sg\""); // there are two bo
+            temp =  bodyTxt.indexOf("\"sg\"", tempbod+1);
+            closingTag = "]}}";
+         } else {
+            temp =  bodyTxt.indexOf("\"sg\"");
+            closingTag = "]}";
+         }
+         String remainStr = bodyTxt.substring(temp+6);
+         if (inputVal.length() == 0){
+            newStr = bodyTxt.substring(0,temp+6) + "0,0" + closingTag;
+         } else {
+            newStr = bodyTxt.substring(0,temp+6) + inputVal.length() + "," + "\""+ inputVal +"\"" + closingTag;
+         }
+         if(proxyVal){
+            this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
+        }
+        updateMessage = helpers.buildHttpMessage(headers, newStr.getBytes());
+        this.sendAttackReq();
+    }
+
 
     /**
      * Java Swing worker to execute attack in the background

@@ -329,16 +329,18 @@ public class AttackTab extends JPanel{
 //        String modText=inputValue.getText();
         int data = cb.getSelectedIndex();
         String modText=customInputValue.getText();
+        String inputVal = autoInputField.getText();
+        String inputPort = autoInputPort.getText();
         if(data == 0){
-            byte[] updatedReq = sigExcl.generateRequest(modText,proxyVal, proxyDNS, proxyPort);
-            sigExcl.sendAttackReq();
+            // working sign excl
+            // byte[] updatedReq = sigExcl.generateRequest(modText,proxyVal, proxyDNS, proxyPort);
+            // sigExcl.sendAttackReq();
+            sigExcl.autoAttack(messageBody, inputVal, proxyVal, proxyDNS, proxyPort);
         } else{
             // wip ssrf attack
             String privKey = privKeyField.getText();
-            String inputVal = autoInputField.getText();
-            String inputPort = autoInputPort.getText();
+            
             ssrfAttack.autoAttack(messageBody,privKey, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
-            loggerInstance.log(getClass(), "test", Logger.LogLevel.INFO);
         }
 
     }
