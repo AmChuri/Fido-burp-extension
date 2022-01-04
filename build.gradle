@@ -5,7 +5,8 @@ repositories {
 }
 
 dependencies {
-    compile 'net.portswigger.burp.extender:burp-extender-api:1.7.13'
+    //compile 'net.portswigger.burp.extender:burp-extender-api:1.7.13'
+    implementation 'net.portswigger.burp.extender:burp-extender-api:2.1'
     // a dependency on Jackson Databind
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.9'
 
