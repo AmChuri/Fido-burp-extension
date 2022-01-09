@@ -14,17 +14,31 @@ import javax.swing.border.TitledBorder;
  * @author amay
  */
 public class AttackTabPanel extends javax.swing.JPanel {
+    private final IBurpExtenderCallbacks callbacks;
+    private final IExtensionHelpers helpers;
+    private static final Logger loggerInstance = Logger.getInstance();
+
+    private IHttpRequestResponse requestResponse;
+    private IRequestInfo requestInfo;
+    private String request;
 
     TitledBorder customInputTitle, reqTitle, outputTitle, instTitle;
 
     /**
      * Creates new form AttackTabPanel
      */
-    public AttackTabPanel() {
+    public AttackTabPanel(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message) {
         customInputTitle = BorderFactory.createTitledBorder("Custom Input");
         reqTitle = BorderFactory.createTitledBorder("Request");
         outputTitle = BorderFactory.createTitledBorder("Output");
         instTitle = BorderFactory.createTitledBorder("Instruction");
+        
+        this.callbacks = callbacks;
+        this.helpers = callbacks.getHelpers();
+        this.requestResponse = message;
+        this.requestInfo = helpers.analyzeRequest(message);
+        this.request = new String(requestResponse.getRequest());
+        String messageBody = request.substring(requestInfo.getBodyOffset());
         initComponents();
     }
 
@@ -127,6 +141,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
         requestText.setEditable(false);
         requestText.setBorder(reqTitle);
+        requestText.setText(request);
         requestPane.setViewportView(requestText);
 
         javax.swing.GroupLayout requestPanelLayout = new javax.swing.GroupLayout(requestPanel);
@@ -253,7 +268,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
                     .addComponent(modifyBtn)
                     .addComponent(analyzeBtn)
                     .addComponent(attackBtn))
-                .addContainerGap(63, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         OutputText.setEditable(false);

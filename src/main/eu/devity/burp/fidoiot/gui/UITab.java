@@ -111,7 +111,7 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
                         AttackTab attackTab = new AttackTab(callbacks, message);
 
 //                        AttackTabForm attackTabForm = new AttackTabForm(callbacks, message);
-                        AttackTabPanel attackTabPanel = new AttackTabPanel();
+                        AttackTabPanel attackTabPanel = new AttackTabPanel(callbacks, message);
                         int newTabCounter = getNewGlobalTabCounter();
                         final String captionTitleValue = Integer.toString(newTabCounter);
 //                        attackerTabGroup.addTab(captionTitleValue, attackTab);
