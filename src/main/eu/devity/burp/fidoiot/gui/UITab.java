@@ -40,6 +40,7 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
     private AttackTab attackTab;
 
     private AttackTabForm attackTabForm;
+    private AttackTabPanel attackTabPanel;
 
     private SignatureTab signatureTab;
     private LoggerTab loggerTab;
@@ -110,11 +111,12 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
                         AttackTab attackTab = new AttackTab(callbacks, message);
 
 //                        AttackTabForm attackTabForm = new AttackTabForm(callbacks, message);
-
+                        AttackTabPanel attackTabPanel = new AttackTabPanel();
                         int newTabCounter = getNewGlobalTabCounter();
                         final String captionTitleValue = Integer.toString(newTabCounter);
-                        attackerTabGroup.addTab(captionTitleValue, attackTab);
+//                        attackerTabGroup.addTab(captionTitleValue, attackTab);
 //                        attackerTabGroup.addTab(captionTitleValue, attackTabForm);
+                        attackerTabGroup.addTab(captionTitleValue, attackTabPanel);
                         attackerTabGroup.setSelectedIndex(attackerTabGroup.indexOfTab(captionTitleValue));
 
 

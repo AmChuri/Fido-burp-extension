@@ -40,3 +40,5 @@ gradle-app.setting
 .gradle
 
 bin/
+
+.DS_Store
