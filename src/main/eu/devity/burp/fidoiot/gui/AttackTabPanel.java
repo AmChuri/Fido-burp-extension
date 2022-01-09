@@ -150,7 +150,8 @@ public class AttackTabPanel extends javax.swing.JPanel {
             requestPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(requestPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(requestPane, javax.swing.GroupLayout.DEFAULT_SIZE, 544, Short.MAX_VALUE))
+                .addComponent(requestPane, javax.swing.GroupLayout.DEFAULT_SIZE, 649, Short.MAX_VALUE)
+                .addContainerGap())
         );
         requestPanelLayout.setVerticalGroup(
             requestPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -167,7 +168,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         customInputPanelLayout.setHorizontalGroup(
             customInputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(customInputPanelLayout.createSequentialGroup()
-                .addComponent(customInputPane, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(customInputPane, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         customInputPanelLayout.setVerticalGroup(
@@ -281,7 +282,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
             outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(outputPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(outPutPane, javax.swing.GroupLayout.PREFERRED_SIZE, 1187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(outPutPane, javax.swing.GroupLayout.PREFERRED_SIZE, 1418, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         outputPanelLayout.setVerticalGroup(
