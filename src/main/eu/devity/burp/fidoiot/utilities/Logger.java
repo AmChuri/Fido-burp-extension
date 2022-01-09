@@ -52,4 +52,25 @@ public class Logger {
 //        }
     }
 
+    public String logToString(Class callingClass, String message, LogLevel logType) {
+        // Get current time
+        Calendar calObj = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        String time = dateFormat.format(calObj.getTime());
+
+        // Choose correct output stream
+        PrintWriter outputStream;
+        outputStream = (Objects.equals(logType, LogLevel.ERROR)) ? stderr : stdout;
+
+
+//        if (outputStream != null && logType.ordinal() <= logType) {
+            String logTypeName = logType.name();
+
+            // Print log message
+            String logOutput = String.format("[%s] %s - [%s]: %s ", logTypeName, time, callingClass.getSimpleName(), message);
+           
+            return logOutput;
+//        }
+    }
+
 }

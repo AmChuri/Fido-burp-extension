@@ -20,7 +20,8 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
     private IHttpRequestResponse requestResponse;
     private IRequestInfo requestInfo;
-    private String request;
+    private String request, messageBody;
+    String ssrfSubAttackType[]={"Host Header", "Protocol Smuggling", "SSRF"};
 
     TitledBorder customInputTitle, reqTitle, outputTitle, instTitle;
 
@@ -37,9 +38,13 @@ public class AttackTabPanel extends javax.swing.JPanel {
         this.helpers = callbacks.getHelpers();
         this.requestResponse = message;
         this.requestInfo = helpers.analyzeRequest(message);
-        this.request = new String(requestResponse.getRequest());
-        String messageBody = request.substring(requestInfo.getBodyOffset());
+        initValues();
         initComponents();
+    }
+
+    private void initValues() {
+        this.request = new String(requestResponse.getRequest());
+        this.messageBody = request.substring(requestInfo.getBodyOffset());
     }
 
     /**
@@ -360,6 +365,20 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
     private void attackTypeListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackTypeListActionPerformed
         // TODO add your handling code here:
+        int data = attackTypeList.getSelectedIndex();
+        if(data == 0){
+            // sign excl attack
+
+        } else if(data == 1){
+            // keyconfusion
+        } else if(data == 2){
+            // ssrf
+            subAttackList.setModel(new javax.swing.DefaultComboBoxModel<>(ssrfSubAttackType));
+            addToOutput(loggerInstance.logToString(getClass(), "SSRF Attack selected", Logger.LogLevel.INFO));
+        } else{
+
+        }
+        loggerInstance.log(getClass(), "SelectedType "+data, Logger.LogLevel.INFO);
     }//GEN-LAST:event_attackTypeListActionPerformed
 
     private void proxyCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proxyCheckActionPerformed
@@ -377,6 +396,11 @@ public class AttackTabPanel extends javax.swing.JPanel {
     private void attackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackBtnActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_attackBtnActionPerformed
+
+    private void addToOutput(String outputString) {
+        String temp = OutputText.getText();
+        OutputText.setText(temp + "\n" + outputString);
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
