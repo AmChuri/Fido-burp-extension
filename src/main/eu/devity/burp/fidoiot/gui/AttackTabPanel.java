@@ -96,6 +96,11 @@ public class AttackTabPanel extends javax.swing.JPanel {
         });
 
         subAttackList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select Attack" }));
+        subAttackList.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                subAttackListActionPerformed(evt);
+            }
+        });
 
         certList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Add Certificate" }));
 
@@ -112,18 +117,14 @@ public class AttackTabPanel extends javax.swing.JPanel {
             .addGroup(dropDownPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(dropDownPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(dropDownPanelLayout.createSequentialGroup()
-                        .addComponent(attackTypeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
-                        .addComponent(attackTypeList, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(dropDownPanelLayout.createSequentialGroup()
-                        .addGroup(dropDownPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(subAttackTypeLabel)
-                            .addComponent(certTypeLabel))
-                        .addGap(20, 20, 20)
-                        .addGroup(dropDownPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(certList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(subAttackList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addComponent(subAttackTypeLabel)
+                    .addComponent(certTypeLabel)
+                    .addComponent(attackTypeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(20, 20, 20)
+                .addGroup(dropDownPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(attackTypeList, 0, 275, Short.MAX_VALUE)
+                    .addComponent(certList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(subAttackList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(6, 6, 6))
         );
         dropDownPanelLayout.setVerticalGroup(
@@ -173,7 +174,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         customInputPanelLayout.setHorizontalGroup(
             customInputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(customInputPanelLayout.createSequentialGroup()
-                .addComponent(customInputPane, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(customInputPane, javax.swing.GroupLayout.PREFERRED_SIZE, 440, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         customInputPanelLayout.setVerticalGroup(
@@ -258,7 +259,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
                     .addComponent(inputLabel)
                     .addComponent(customInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(customBtnPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(customBtnPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(proxyLabel)
                     .addComponent(proxyCheck))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -287,7 +288,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
             outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(outputPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(outPutPane, javax.swing.GroupLayout.PREFERRED_SIZE, 1418, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(outPutPane, javax.swing.GroupLayout.PREFERRED_SIZE, 1499, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         outputPanelLayout.setVerticalGroup(
@@ -307,7 +308,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
             instructionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(instructionPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(instPane, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(instPane, javax.swing.GroupLayout.PREFERRED_SIZE, 385, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         instructionPanelLayout.setVerticalGroup(
@@ -396,6 +397,10 @@ public class AttackTabPanel extends javax.swing.JPanel {
     private void attackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackBtnActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_attackBtnActionPerformed
+
+    private void subAttackListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_subAttackListActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_subAttackListActionPerformed
 
     private void addToOutput(String outputString) {
         String temp = OutputText.getText();

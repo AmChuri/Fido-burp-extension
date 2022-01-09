@@ -80,22 +80,15 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Component id="attackTypeLabel" min="-2" pref="62" max="-2" attributes="0"/>
-                          <EmptySpace pref="20" max="32767" attributes="0"/>
-                          <Component id="attackTypeList" min="-2" pref="220" max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="102" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="subAttackTypeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="certTypeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="certList" max="32767" attributes="0"/>
-                              <Component id="subAttackList" max="32767" attributes="0"/>
-                          </Group>
-                      </Group>
+                      <Component id="subAttackTypeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="certTypeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="attackTypeLabel" alignment="0" min="-2" pref="62" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="attackTypeList" pref="275" max="32767" attributes="0"/>
+                      <Component id="certList" max="32767" attributes="0"/>
+                      <Component id="subAttackList" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
               </Group>
@@ -150,6 +143,9 @@
               </StringArray>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="subAttackListActionPerformed"/>
+          </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
@@ -237,7 +233,7 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="customInputPane" min="-2" pref="420" max="-2" attributes="0"/>
+                  <Component id="customInputPane" min="-2" pref="440" max="-2" attributes="0"/>
                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -316,7 +312,7 @@
                       <Component id="customInput" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="proxyLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="proxyCheck" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -410,7 +406,7 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="outPutPane" min="-2" pref="1418" max="-2" attributes="0"/>
+                  <Component id="outPutPane" min="-2" pref="1499" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -451,7 +447,7 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="instPane" min="-2" pref="320" max="-2" attributes="0"/>
+                  <Component id="instPane" min="-2" pref="385" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
