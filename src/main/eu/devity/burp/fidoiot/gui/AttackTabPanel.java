@@ -8,6 +8,7 @@ import java.awt.*;
 import javax.swing.BorderFactory;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import java.lang.reflect.Array;
 
 /**
  *
@@ -24,6 +25,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
     String ssrfSubAttackType[]={"Host Header", "Protocol Smuggling", "SSRF"};
 
     TitledBorder customInputTitle, reqTitle, outputTitle, instTitle;
+    private SSRFAttack ssrfAttack;
 
     /**
      * Creates new form AttackTabPanel
@@ -38,6 +40,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         this.helpers = callbacks.getHelpers();
         this.requestResponse = message;
         this.requestInfo = helpers.analyzeRequest(message);
+        ssrfAttack = new SSRFAttack(callbacks, message);
         initValues();
         initComponents();
     }
@@ -379,7 +382,6 @@ public class AttackTabPanel extends javax.swing.JPanel {
         } else{
 
         }
-        loggerInstance.log(getClass(), "SelectedType "+data, Logger.LogLevel.INFO);
     }//GEN-LAST:event_attackTypeListActionPerformed
 
     private void proxyCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proxyCheckActionPerformed
@@ -396,6 +398,20 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
     private void attackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackBtnActionPerformed
         // TODO add your handling code here:
+        int data = attackTypeList.getSelectedIndex();
+        if(data == 0){
+            // sign excl attack
+
+        } else if(data == 1){
+            // keyconfusion
+        } else if(data == 2){
+            // check for type of ssrf
+            int subType = subAttackList.getSelectedIndex();
+            String temp = (String) Array.get(ssrfSubAttackType, subType);
+            addToOutput(loggerInstance.logToString(getClass(), "SSRF - "+ temp +" selected", Logger.LogLevel.INFO));
+        } else{
+
+        }
     }//GEN-LAST:event_attackBtnActionPerformed
 
     private void subAttackListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_subAttackListActionPerformed
