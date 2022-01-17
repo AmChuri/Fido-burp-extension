@@ -41,6 +41,7 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
 
     private AttackTabForm attackTabForm;
     private AttackTabPanel attackTabPanel;
+    private CertificatePanel certificatePanel;
 
     private SignatureTab signatureTab;
     private LoggerTab loggerTab;
@@ -66,10 +67,12 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
         stdout.println("Initialize UI");
         signatureTab = new SignatureTab(callbacks);
         loggerTab = new LoggerTab(callbacks);
+        certificatePanel = new CertificatePanel();
         // Use Burp UI settings and add as extension tab
         callbacks.customizeUiComponent(this);
         callbacks.addSuiteTab(this);
         this.addTab("Attacks", attackerTabGroup);
+        this.addTab("Certificates", certificatePanel);
         this.addTab("Signature", signatureTab);
         this.addTab("Logger", loggerTab);
 //        attackerTabGroup.addTab("TEST",  new TestTab());
