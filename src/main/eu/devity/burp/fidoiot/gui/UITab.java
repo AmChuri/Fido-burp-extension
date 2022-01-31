@@ -39,7 +39,6 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
     private IMessageEditor responseViewer;
     private AttackTab attackTab;
 
-    private AttackTabForm attackTabForm;
     private AttackTabPanel attackTabPanel;
     private CertificatePanel certificatePanel;
 

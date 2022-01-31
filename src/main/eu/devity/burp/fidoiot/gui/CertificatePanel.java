@@ -43,11 +43,13 @@ public class CertificatePanel extends javax.swing.JPanel {
         listPanel = new javax.swing.JPanel();
         listScrollPane = new javax.swing.JScrollPane();
         certList = new javax.swing.JList<>();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        listLabel = new javax.swing.JLabel();
+        deleteBtn = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        outputText = new javax.swing.JTextPane();
 
         setLayout(new java.awt.BorderLayout());
 
+        instTextPane.setEditable(false);
         instTextPane.setContentType("text/html"); // NOI18N
         instTextPane.setText("<p style=\"text-align:center;\">Instruction</p>\n<ul>\n<li>Select Certificate file from folder</li>\n<li>Add custom name to the Certificate</li>\n<li>Select type of Certificate</li>\n<li>Add</li>\n</ul>");
         jScrollPane2.setViewportView(instTextPane);
@@ -140,43 +142,51 @@ public class CertificatePanel extends javax.swing.JPanel {
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
+        certList.setBorder(javax.swing.BorderFactory.createTitledBorder("Certificate List"));
         certList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         listScrollPane.setViewportView(certList);
         certList.getAccessibleContext().setAccessibleName("");
 
-        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+        deleteBtn.setText("Delete");
+        deleteBtn.setActionCommand("Delete");
+        deleteBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox1ActionPerformed(evt);
+                deleteBtnActionPerformed(evt);
             }
         });
 
-        listLabel.setText("Certificate Name");
+        outputText.setEditable(false);
+        outputText.setBorder(javax.swing.BorderFactory.createTitledBorder("Output"));
+        jScrollPane1.setViewportView(outputText);
 
         javax.swing.GroupLayout listPanelLayout = new javax.swing.GroupLayout(listPanel);
         listPanel.setLayout(listPanelLayout);
         listPanelLayout.setHorizontalGroup(
             listPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(listPanelLayout.createSequentialGroup()
-                .addComponent(jCheckBox1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addContainerGap()
                 .addGroup(listPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(listScrollPane)
-                    .addGroup(listPanelLayout.createSequentialGroup()
-                        .addComponent(listLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())))
+                    .addComponent(listScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 937, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listPanelLayout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addGap(39, 39, 39)
+                        .addComponent(deleteBtn)
+                        .addGap(39, 39, 39))))
         );
         listPanelLayout.setVerticalGroup(
             listPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(listLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(28, Short.MAX_VALUE)
+                .addComponent(listScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(listPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jCheckBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(listScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(listPanelLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(listPanelLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(deleteBtn)))
+                .addContainerGap())
         );
-
-        listLabel.getAccessibleContext().setAccessibleName("Certificate Name");
 
         javax.swing.GroupLayout listMainPanelLayout = new javax.swing.GroupLayout(listMainPanel);
         listMainPanel.setLayout(listMainPanelLayout);
@@ -192,7 +202,7 @@ public class CertificatePanel extends javax.swing.JPanel {
             .addGroup(listMainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(listPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(77, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
@@ -239,30 +249,31 @@ public class CertificatePanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_selectBtnActionPerformed
 
-    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBox1ActionPerformed
-
     private void nameInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameInputActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_nameInputActionPerformed
+
+    private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_deleteBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList<String> certList;
     private javax.swing.JComboBox<String> certType;
+    private javax.swing.JButton deleteBtn;
     private javax.swing.JPanel instPanel;
     private javax.swing.JTextPane instTextPane;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JLabel listLabel;
     private javax.swing.JPanel listMainPanel;
     private javax.swing.JPanel listPanel;
     private javax.swing.JScrollPane listScrollPane;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JTextField nameInput;
     private javax.swing.JLabel nameLabel;
+    private javax.swing.JTextPane outputText;
     private javax.swing.JButton saveBtn;
     private javax.swing.JButton selectBtn;
     private javax.swing.JPanel selectPanel;
