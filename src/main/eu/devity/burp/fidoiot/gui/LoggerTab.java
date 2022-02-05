@@ -1,6 +1,8 @@
-package burp;
+package src.main.eu.devity.burp.fidoiot.gui;
 
 import burp.*;
+import src.main.eu.devity.burp.fidoiot.utilities.Logger;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

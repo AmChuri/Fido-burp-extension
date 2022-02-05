@@ -1,9 +1,13 @@
-package burp;
+package src.main.eu.devity.burp.fidoiot.gui;
 
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
+import src.main.eu.devity.burp.fidoiot.attacks.SSRFAttack;
+import src.main.eu.devity.burp.fidoiot.attacks.SignatureExcl;
+import src.main.eu.devity.burp.fidoiot.utilities.Logger;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.PrintWriter;

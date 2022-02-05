@@ -2,6 +2,12 @@ package burp;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.List;
+
+import burp.*;
+import src.main.eu.devity.burp.fidoiot.gui.UITab;
+import src.main.eu.devity.burp.fidoiot.utilities.Logger;
+import src.main.eu.devity.burp.fidoiot.utilities.ReadMessage;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 

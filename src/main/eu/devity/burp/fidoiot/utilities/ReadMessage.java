@@ -1,4 +1,4 @@
-package burp;
+package src.main.eu.devity.burp.fidoiot.utilities;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.List;
@@ -6,6 +6,17 @@ import java.io.*;
 import java.util.*;
 import java.lang.*;
 import java.util.regex.*;
+
+import burp.IBurpExtenderCallbacks;
+import burp.IExtensionHelpers;
+import burp.IHttpListener;
+import burp.IHttpRequestResponse;
+import burp.IHttpService;
+import burp.IInterceptedProxyMessage;
+import burp.IParameter;
+import burp.IProxyListener;
+import burp.IRequestInfo;
+
 import java.nio.charset.StandardCharsets;
 /**
  * Class to capture request to read the content of the request to identify the type of attack that can be

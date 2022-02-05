@@ -1,10 +1,14 @@
-package burp;
+package src.main.eu.devity.burp.fidoiot.attacks;
 
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
+import burp.IResponseInfo;
+import src.main.eu.devity.burp.fidoiot.utilities.Logger;
 import burp.IHttpService;
+import burp.IParameter;
+
 import java.io.PrintWriter;
 
 import java.net.URL;

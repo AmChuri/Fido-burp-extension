@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package burp;
+package src.main.eu.devity.burp.fidoiot.gui;
 import javax.swing.*;
 import java.io.File;
 /**

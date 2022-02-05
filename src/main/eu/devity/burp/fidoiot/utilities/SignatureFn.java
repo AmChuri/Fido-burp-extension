@@ -1,4 +1,4 @@
-package burp;
+package src.main.eu.devity.burp.fidoiot.utilities;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;

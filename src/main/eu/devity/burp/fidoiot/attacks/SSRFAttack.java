@@ -1,18 +1,18 @@
-package burp;
+package src.main.eu.devity.burp.fidoiot.attacks;
 
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
+import burp.IResponseInfo;
+import src.main.eu.devity.burp.fidoiot.utilities.Logger;
+import src.main.eu.devity.burp.fidoiot.utilities.SignatureFn;
 import burp.IHttpService;
 import java.io.PrintWriter;
 
 import java.net.URL;
 import java.util.List;
-import java.io.*;
 import java.util.*;
-import java.lang.*;
-import java.util.regex.*;
 import java.nio.charset.StandardCharsets;
 
 import javax.swing.*;

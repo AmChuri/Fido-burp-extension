@@ -1,4 +1,4 @@
-package burp;
+package src.main.eu.devity.burp.fidoiot.gui;
 
 import burp.*;
 

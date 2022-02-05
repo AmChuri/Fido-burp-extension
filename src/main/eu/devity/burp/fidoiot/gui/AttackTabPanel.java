@@ -2,7 +2,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package burp;
+package src.main.eu.devity.burp.fidoiot.gui;
+import burp.IBurpExtenderCallbacks;
+import burp.IExtensionHelpers;
+import burp.IHttpRequestResponse;
+import burp.IRequestInfo;
+import src.main.eu.devity.burp.fidoiot.attacks.SSRFAttack;
+import src.main.eu.devity.burp.fidoiot.utilities.Logger;
+
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.BorderFactory;
@@ -410,6 +417,12 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
     private void addToOutput(String outputString) {
         String temp = outPutText.getText();
+        outPutText.setText(temp + "\n" + outputString);
+    }
+
+    private void loggerToOutput(String actionPerformed) {
+        String temp = outPutText.getText();
+        String outputString = loggerInstance.logToString(getClass(), actionPerformed, Logger.LogLevel.INFO);
         outPutText.setText(temp + "\n" + outputString);
     }
 
