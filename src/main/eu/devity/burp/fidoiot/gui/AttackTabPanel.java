@@ -82,6 +82,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         requestText = new javax.swing.JTextPane();
         customValuePanel = new javax.swing.JPanel();
         customInputScroll = new javax.swing.JScrollPane();
+        customInputText = new javax.swing.JTextPane();
         customInputPAnel = new javax.swing.JPanel();
         inputLabel = new javax.swing.JLabel();
         proxyLabel = new javax.swing.JLabel();
@@ -213,6 +214,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         );
 
         customInputScroll.setBorder(javax.swing.BorderFactory.createTitledBorder("Custom Input"));
+        customInputScroll.setViewportView(customInputText);
 
         javax.swing.GroupLayout customValuePanelLayout = new javax.swing.GroupLayout(customValuePanel);
         customValuePanel.setLayout(customValuePanelLayout);
@@ -238,10 +240,25 @@ public class AttackTabPanel extends javax.swing.JPanel {
         proxyPortLabel.setText("Proxy Port");
 
         modifyBtn.setText("Modify");
+        modifyBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modifyBtnActionPerformed(evt);
+            }
+        });
 
         analyzeBtn.setText("Analyze");
+        analyzeBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                analyzeBtnActionPerformed(evt);
+            }
+        });
 
         attackBtn.setText("Attack");
+        attackBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                attackBtnActionPerformed(evt);
+            }
+        });
 
         proxyPortText.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -254,36 +271,35 @@ public class AttackTabPanel extends javax.swing.JPanel {
         customInputPAnelLayout.setHorizontalGroup(
             customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(customInputPAnelLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(customInputPAnelLayout.createSequentialGroup()
-                        .addContainerGap()
+                        .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(proxyPortLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(proxyHostLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(customInputPAnelLayout.createSequentialGroup()
-                                .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(proxyPortLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(proxyHostLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(customInputPAnelLayout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(proxyHostText))
-                                    .addGroup(customInputPAnelLayout.createSequentialGroup()
-                                        .addGap(7, 7, 7)
-                                        .addComponent(proxyPortText))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(proxyHostText))
                             .addGroup(customInputPAnelLayout.createSequentialGroup()
-                                .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(proxyLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
-                                    .addComponent(inputLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(proxyInput)
-                                    .addComponent(inputText, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addGap(7, 7, 7)
+                                .addComponent(proxyPortText))))
                     .addGroup(customInputPAnelLayout.createSequentialGroup()
-                        .addComponent(modifyBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(analyzeBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(attackBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(proxyLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
+                            .addComponent(inputLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(proxyInput)
+                            .addComponent(inputText, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(14, 14, 14))
+            .addGroup(customInputPAnelLayout.createSequentialGroup()
+                .addComponent(modifyBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(analyzeBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(attackBtn)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         customInputPAnelLayout.setVerticalGroup(
             customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -415,6 +431,18 @@ public class AttackTabPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_proxyPortTextActionPerformed
 
+    private void modifyBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modifyBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_modifyBtnActionPerformed
+
+    private void analyzeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyzeBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_analyzeBtnActionPerformed
+
+    private void attackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_attackBtnActionPerformed
+
     private void addToOutput(String outputString) {
         String temp = outPutText.getText();
         outPutText.setText(temp + "\n" + outputString);
@@ -439,6 +467,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> certListCB;
     private javax.swing.JPanel customInputPAnel;
     private javax.swing.JScrollPane customInputScroll;
+    private javax.swing.JTextPane customInputText;
     private javax.swing.JPanel customValuePanel;
     private javax.swing.JPanel dropDownPanel;
     private javax.swing.JLabel inputLabel;
