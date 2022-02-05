@@ -39,6 +39,7 @@ public class CertificatePanel extends javax.swing.JPanel {
         saveBtn = new javax.swing.JButton();
         nameInput = new javax.swing.JTextField();
         nameLabel = new javax.swing.JLabel();
+        typeLabel = new javax.swing.JLabel();
         listMainPanel = new javax.swing.JPanel();
         listPanel = new javax.swing.JPanel();
         listScrollPane = new javax.swing.JScrollPane();
@@ -90,8 +91,12 @@ public class CertificatePanel extends javax.swing.JPanel {
         certType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         saveBtn.setText("Add");
+        saveBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveBtnActionPerformed(evt);
+            }
+        });
 
-        nameInput.setEditable(false);
         nameInput.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nameInputActionPerformed(evt);
@@ -100,18 +105,25 @@ public class CertificatePanel extends javax.swing.JPanel {
 
         nameLabel.setText("Name:");
 
+        typeLabel.setText("Type:");
+
         javax.swing.GroupLayout selectPanelLayout = new javax.swing.GroupLayout(selectPanel);
         selectPanel.setLayout(selectPanelLayout);
         selectPanelLayout.setHorizontalGroup(
             selectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(selectPanelLayout.createSequentialGroup()
-                .addGap(9, 9, 9)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(selectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(selectPanelLayout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(jLabel1))
+                    .addGroup(selectPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(typeLabel)))
+                .addGap(12, 12, 12)
                 .addGroup(selectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(selectPanelLayout.createSequentialGroup()
                         .addComponent(selectText, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(selectBtn))
                     .addComponent(saveBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(certType, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -136,10 +148,11 @@ public class CertificatePanel extends javax.swing.JPanel {
                     .addComponent(nameInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(nameLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(certType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(saveBtn)
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addGroup(selectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(certType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(typeLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addComponent(saveBtn))
         );
 
         certList.setBorder(javax.swing.BorderFactory.createTitledBorder("Certificate List"));
@@ -148,7 +161,6 @@ public class CertificatePanel extends javax.swing.JPanel {
         certList.getAccessibleContext().setAccessibleName("");
 
         deleteBtn.setText("Delete");
-        deleteBtn.setActionCommand("Delete");
         deleteBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteBtnActionPerformed(evt);
@@ -169,8 +181,8 @@ public class CertificatePanel extends javax.swing.JPanel {
                     .addComponent(listScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 937, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, listPanelLayout.createSequentialGroup()
                         .addComponent(jScrollPane1)
-                        .addGap(39, 39, 39)
-                        .addComponent(deleteBtn)
+                        .addGap(18, 18, 18)
+                        .addComponent(deleteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(39, 39, 39))))
         );
         listPanelLayout.setVerticalGroup(
@@ -183,7 +195,7 @@ public class CertificatePanel extends javax.swing.JPanel {
                         .addGap(6, 6, 6)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(listPanelLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(12, 12, 12)
                         .addComponent(deleteBtn)))
                 .addContainerGap())
         );
@@ -257,6 +269,10 @@ public class CertificatePanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_deleteBtnActionPerformed
 
+    private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_saveBtnActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList<String> certList;
@@ -278,6 +294,7 @@ public class CertificatePanel extends javax.swing.JPanel {
     private javax.swing.JButton selectBtn;
     private javax.swing.JPanel selectPanel;
     private javax.swing.JTextField selectText;
+    private javax.swing.JLabel typeLabel;
     // End of variables declaration//GEN-END:variables
 private JFileChooser fileChooser;
 }
