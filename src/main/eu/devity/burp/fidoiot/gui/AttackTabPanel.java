@@ -8,6 +8,7 @@ import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
 import src.main.eu.devity.burp.fidoiot.attacks.SSRFAttack;
+import src.main.eu.devity.burp.fidoiot.attacks.SignatureExcl;
 import src.main.eu.devity.burp.fidoiot.utilities.JsonParser;
 import src.main.eu.devity.burp.fidoiot.utilities.Logger;
 import src.main.eu.devity.burp.fidoiot.utilities.TypeValues;
@@ -44,6 +45,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
     private boolean isProxy = false;
     private ATTACKS selectedAttack;
     private JsonParser certList;
+    private SignatureExcl sigExcl;
 
 
     /**
@@ -60,6 +62,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         this.requestResponse = message;
         this.requestInfo = helpers.analyzeRequest(message);
         ssrfAttack = new SSRFAttack(callbacks, message);
+        sigExcl = new SignatureExcl(callbacks, message);
         initValues();
         initComponents();
     }
@@ -124,6 +127,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         certLabel.setText("Certificate");
 
         attackTypeList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Signature Exclusion", "Key Confusion", "SSRF" }));
+        subAttackListCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.signExclSubAtk));
         attackTypeList.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 attackTypeListActionPerformed(evt);
@@ -255,7 +259,11 @@ public class AttackTabPanel extends javax.swing.JPanel {
         modifyBtn.setText("Modify");
         modifyBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                modifyBtnActionPerformed(evt);
+                if(isProxy){
+                    modifyBtnActionPerformed(evt, isProxy,proxyHostText.getText(),Integer.parseInt(proxyPortText.getText()));
+                } else {
+                    modifyBtnActionPerformed(evt,isProxy,"0",0);
+                }
             }
         });
 
@@ -269,13 +277,17 @@ public class AttackTabPanel extends javax.swing.JPanel {
         attackBtn.setText("Attack");
         attackBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                attackBtnActionPerformed(evt);
+                if(isProxy){
+                    attackBtnActionPerformed(evt,messageBody,isProxy,inputText.getText(),Integer.parseInt("8053"));
+                } else {
+                    attackBtnActionPerformed(evt,messageBody,isProxy,"0",0);
+                }
             }
         });
 
-        proxyPortText.addActionListener(new java.awt.event.ActionListener() {
+        proxyInput.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                proxyPortTextActionPerformed(evt);
+                proxyInputActionPerformed(evt);
             }
         });
 
@@ -434,9 +446,11 @@ public class AttackTabPanel extends javax.swing.JPanel {
         if(data == 0) {
             this.selectedAttack = TypeValues.ATTACKS.SIGNATUREEXCL;
             subAttackListCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.signExclSubAtk));
+            instText.setText(TypeValues.signExclInst);
         } else if(data == 1) {
             this.selectedAttack = TypeValues.ATTACKS.KEYCONFUSION;
             subAttackListCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.keyConfSubAtk));
+            instText.setText(TypeValues.keyConfInst);
         } else if(data == 2) {
             this.selectedAttack = TypeValues.ATTACKS.SSRF;
             subAttackListCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.ssrfSubAtk));
@@ -454,20 +468,45 @@ public class AttackTabPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_certListCBActionPerformed
 
-    private void proxyPortTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proxyPortTextActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_proxyPortTextActionPerformed
+    private void proxyInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proxyInputActionPerformed
+        // Toggle proxy value
+        isProxy = !isProxy;
+    }//GEN-LAST:event_proxyInputActionPerformed
 
-    private void modifyBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modifyBtnActionPerformed
-        // TODO add your handling code here:
+    private void modifyBtnActionPerformed(java.awt.event.ActionEvent evt, boolean proxyVal, String proxyDNS, int proxyPort) {//GEN-FIRST:event_modifyBtnActionPerformed
+        loggerToOutput("Request was modified");
+        String modText = customInputText.getText();
+        byte[] updatedReq = sigExcl.generateRequest(modText,proxyVal, proxyDNS, proxyPort);
+        String temp = new String(updatedReq);
+        requestText.setText(temp);
     }//GEN-LAST:event_modifyBtnActionPerformed
 
     private void analyzeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyzeBtnActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_analyzeBtnActionPerformed
 
-    private void attackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackBtnActionPerformed
-        // TODO add your handling code here:
+    private void attackBtnActionPerformed(java.awt.event.ActionEvent evt, String messageBody, boolean proxyVal, String proxyDNS, int proxyPort) {//GEN-FIRST:event_attackBtnActionPerformed
+        loggerToOutput( "Performing Manuel Attack");
+        String modText= customInputText.getText();
+        String inputVal = inputText.getText();
+        String inputPort = "8053";
+        if(this.selectedAttack == TypeValues.ATTACKS.SIGNATUREEXCL){
+            loggerToOutput( "Signature Exclusion Attack Selected");
+            loggerToOutput(messageBody);
+            loggerToOutput(inputVal+proxyVal+proxyDNS+proxyPort);
+            sigExcl.autoAttack(messageBody, inputVal, proxyVal, proxyDNS, proxyPort);
+        }else if(this.selectedAttack == TypeValues.ATTACKS.KEYCONFUSION){
+            sigExcl.autoAttack(messageBody, inputVal, proxyVal, proxyDNS, proxyPort);
+        }else if(this.selectedAttack == TypeValues.ATTACKS.SSRF){
+           // String privKey = privKeyField.getText();
+           String privKey = "";
+            // need to fix input port 8053
+            ssrfAttack.autoAttack(messageBody,privKey, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
+        } else {
+            loggerToOutput( "Something went wrong Please check if proper attack has been selected");
+            
+        }
+
         
     }//GEN-LAST:event_attackBtnActionPerformed
 

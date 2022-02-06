@@ -26,8 +26,6 @@ public class JsonParser {
 
     public void readCertFile() {
         String userPath = this.userDir;
-        loggerInstance.log(getClass(), "hey", Logger.LogLevel.INFO);
-        loggerInstance.log(getClass(), userPath, Logger.LogLevel.INFO);
         try {
             loggerInstance.log(getClass(), userPath+"/Downloads/certlist.json", Logger.LogLevel.INFO);
             // create object mapper instance
@@ -36,7 +34,11 @@ public class JsonParser {
 
             List<Certificate> certificates = Arrays.asList(mapper.readValue(Paths.get(userPath+"/Downloads/certlist.json").toFile(), Certificate[].class));
             
-            certificates.forEach(System.out::println);
+            loggerInstance.log(getClass(), ""+certificates.size(), Logger.LogLevel.INFO);
+            for (final Certificate room : certificates) {
+                // Here your room is available
+                loggerInstance.log(getClass(), room.getName(), Logger.LogLevel.INFO);
+            }
             // print map entries
             //for (Map.Entry<?, ?> entry : map.entrySet()) {
             //    loggerInstance.log(getClass(), entry.getKey() + "=" + entry.getValue(), Logger.LogLevel.INFO);

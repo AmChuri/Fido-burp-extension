@@ -180,6 +180,7 @@ public class SignatureExcl {
                 break;
             }
          }
+         loggerInstance.log(getClass(), msgType.toString()  , Logger.LogLevel.INFO);
          int temp; 
          String closingTag, newStr;
          if(msgType == 22){
@@ -191,6 +192,7 @@ public class SignatureExcl {
             closingTag = "]}";
          }
          String remainStr = bodyTxt.substring(temp+6);
+         loggerInstance.log(getClass(), inputVal  , Logger.LogLevel.INFO);
          if (inputVal.length() == 0){
             newStr = bodyTxt.substring(0,temp+6) + "0,0" + closingTag;
          } else {
@@ -200,6 +202,7 @@ public class SignatureExcl {
             this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
         }
         updateMessage = helpers.buildHttpMessage(headers, newStr.getBytes());
+        loggerInstance.log(getClass(), "reached"  , Logger.LogLevel.INFO);
         this.sendAttackReq();
     }
 

@@ -451,13 +451,13 @@
             <Component class="javax.swing.JTextField" name="inputText">
             </Component>
             <Component class="javax.swing.JCheckBox" name="proxyInput">
+            <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="proxyInputActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="proxyHostText">
             </Component>
             <Component class="javax.swing.JTextField" name="proxyPortText">
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="proxyPortTextActionPerformed"/>
-              </Events>
             </Component>
           </SubComponents>
         </Container>
