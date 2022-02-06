@@ -8,14 +8,22 @@ import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
 import src.main.eu.devity.burp.fidoiot.attacks.SSRFAttack;
+import src.main.eu.devity.burp.fidoiot.utilities.JsonParser;
 import src.main.eu.devity.burp.fidoiot.utilities.Logger;
+import src.main.eu.devity.burp.fidoiot.utilities.TypeValues;
+import src.main.eu.devity.burp.fidoiot.utilities.TypeValues.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+
 import javax.swing.BorderFactory;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import java.lang.reflect.Array;
+
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  *
@@ -33,6 +41,10 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
     TitledBorder customInputTitle, reqTitle, outputTitle, instTitle;
     private SSRFAttack ssrfAttack;
+    private boolean isProxy = false;
+    private ATTACKS selectedAttack;
+    private JsonParser certList;
+
 
     /**
      * Creates new form AttackTabPanel
@@ -55,6 +67,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
     private void initValues() {
         this.request = new String(requestResponse.getRequest());
         this.messageBody = request.substring(requestInfo.getBodyOffset());
+        certList = new JsonParser();
     }
 
     /**
@@ -110,7 +123,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
         certLabel.setText("Certificate");
 
-        attackTypeList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Signature Exclusion", "SSRF", "Key Confusion" }));
+        attackTypeList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Signature Exclusion", "Key Confusion", "SSRF" }));
         attackTypeList.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 attackTypeListActionPerformed(evt);
@@ -417,6 +430,20 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
     private void attackTypeListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackTypeListActionPerformed
         // TODO add your handling code here:
+        int data = attackTypeList.getSelectedIndex();
+        if(data == 0) {
+            this.selectedAttack = TypeValues.ATTACKS.SIGNATUREEXCL;
+            subAttackListCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.signExclSubAtk));
+        } else if(data == 1) {
+            this.selectedAttack = TypeValues.ATTACKS.KEYCONFUSION;
+            subAttackListCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.keyConfSubAtk));
+        } else if(data == 2) {
+            this.selectedAttack = TypeValues.ATTACKS.SSRF;
+            subAttackListCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.ssrfSubAtk));
+        } else {
+            loggerToOutput("Please select proper Attack type");
+        }
+        certList.readCertFile();
     }//GEN-LAST:event_attackTypeListActionPerformed
 
     private void subAttackListCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_subAttackListCBActionPerformed
@@ -441,6 +468,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
     private void attackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackBtnActionPerformed
         // TODO add your handling code here:
+        
     }//GEN-LAST:event_attackBtnActionPerformed
 
     private void addToOutput(String outputString) {

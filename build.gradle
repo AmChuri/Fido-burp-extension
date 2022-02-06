@@ -13,6 +13,8 @@ dependencies {
 
     // and a dependency on vert.x
     implementation 'io.vertx:vertx-core:3.5.3'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation 'org.apache.commons:commons-lang3:3.11'
 }
 
 sourceSets {
