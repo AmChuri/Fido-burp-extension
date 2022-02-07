@@ -43,6 +43,8 @@ public class SignatureExcl {
     private static final Logger loggerInstance = Logger.getInstance();
 
     private byte[] updateMessage;
+    private String resultMsgBody;
+    AttackExecutor attackRequestExecutor;
 
     public SignatureExcl(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
 
@@ -156,14 +158,15 @@ public class SignatureExcl {
 
     public void sendAttackReq(){
         loggerInstance.log(getClass(), "Executing Signature Exclusion Attack"  , Logger.LogLevel.INFO);
-        AttackExecutor attackRequestExecutor = new AttackExecutor(updateMessage);
+        attackRequestExecutor = new AttackExecutor(updateMessage);
         attackRequestExecutor.execute();
     }
 
     /**
      * Auto attack for sign exclusion
+     * @return 
      */
-    public void autoAttack(String bodyTxt, String inputVal, boolean proxyVal, String proxyDNS, int proxyPort) {
+    public String autoAttack(String bodyTxt, String inputVal, boolean proxyVal, String proxyDNS, int proxyPort) {
         List<String> headers = requestInfo.getHeaders();
         Integer msgType = 0;
         for(String header : headers){
@@ -180,7 +183,6 @@ public class SignatureExcl {
                 break;
             }
          }
-         loggerInstance.log(getClass(), msgType.toString()  , Logger.LogLevel.INFO);
          int temp; 
          String closingTag, newStr;
          if(msgType == 22){
@@ -192,7 +194,6 @@ public class SignatureExcl {
             closingTag = "]}";
          }
          String remainStr = bodyTxt.substring(temp+6);
-         loggerInstance.log(getClass(), inputVal  , Logger.LogLevel.INFO);
          if (inputVal.length() == 0){
             newStr = bodyTxt.substring(0,temp+6) + "0,0" + closingTag;
          } else {
@@ -202,8 +203,26 @@ public class SignatureExcl {
             this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
         }
         updateMessage = helpers.buildHttpMessage(headers, newStr.getBytes());
-        loggerInstance.log(getClass(), "reached"  , Logger.LogLevel.INFO);
         this.sendAttackReq();
+
+
+        int totalTime = 0;
+
+        while(!attackRequestExecutor.isDone()){
+            try {
+                totalTime +=1;
+                Thread.sleep(2000);
+            }
+            catch (Exception ex) {
+                loggerInstance.log(getClass(), "Error Executing attack"  , Logger.LogLevel.ERROR);
+            }
+
+            if(totalTime == 10){
+                loggerInstance.log(getClass(), "Error Executing attack"  , Logger.LogLevel.ERROR);
+                break;
+            }
+        }
+        return resultMsgBody;
     }
 
 
@@ -241,6 +260,7 @@ public class SignatureExcl {
             responseInfo = helpers.analyzeResponse(requestResponse.getResponse());
             String messageBody = temp.substring(responseInfo.getBodyOffset());
             loggerInstance.log(getClass(), "Attack Performed: " +messageBody , Logger.LogLevel.DEBUG);
+            resultMsgBody = messageBody;
         }
     }
 

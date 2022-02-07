@@ -7,22 +7,30 @@ import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
+import src.main.eu.devity.burp.fidoiot.attacks.KeyConfusion;
 import src.main.eu.devity.burp.fidoiot.attacks.SSRFAttack;
 import src.main.eu.devity.burp.fidoiot.attacks.SignatureExcl;
 import src.main.eu.devity.burp.fidoiot.utilities.JsonParser;
 import src.main.eu.devity.burp.fidoiot.utilities.Logger;
 import src.main.eu.devity.burp.fidoiot.utilities.TypeValues;
 import src.main.eu.devity.burp.fidoiot.utilities.TypeValues.*;
+import src.main.eu.devity.burp.fidoiot.utilities.custom.Certificate;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import java.lang.reflect.Array;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 
 import org.apache.commons.lang3.SystemUtils;
 
@@ -46,6 +54,10 @@ public class AttackTabPanel extends javax.swing.JPanel {
     private ATTACKS selectedAttack;
     private JsonParser certList;
     private SignatureExcl sigExcl;
+    private KeyConfusion keyConfusion;
+    List<String> certListStr = new ArrayList<>();
+    String tempCertList[]={"Select Certificate", "Type 22 Public Key", "Type 22 Private key", "Custom EC 256", "Custom EC 384", "Custom RSA 2048"};
+    String privKey = "";
 
 
     /**
@@ -63,14 +75,18 @@ public class AttackTabPanel extends javax.swing.JPanel {
         this.requestInfo = helpers.analyzeRequest(message);
         ssrfAttack = new SSRFAttack(callbacks, message);
         sigExcl = new SignatureExcl(callbacks, message);
+        keyConfusion = new KeyConfusion(callbacks, message);
         initValues();
         initComponents();
+        initCertList();
+        
     }
 
     private void initValues() {
         this.request = new String(requestResponse.getRequest());
         this.messageBody = request.substring(requestInfo.getBodyOffset());
         certList = new JsonParser();
+        
     }
 
     /**
@@ -191,6 +207,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
         instText.setEditable(false);
         instText.setContentType("text/html"); // NOI18N
+        instText.setText(TypeValues.signExclInst);
         instScroll.setViewportView(instText);
 
         javax.swing.GroupLayout instPanelLayout = new javax.swing.GroupLayout(instPanel);
@@ -278,7 +295,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         attackBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 if(isProxy){
-                    attackBtnActionPerformed(evt,messageBody,isProxy,inputText.getText(),Integer.parseInt("8053"));
+                    attackBtnActionPerformed(evt,messageBody,isProxy,proxyHostText.getText(),Integer.parseInt(proxyPortText.getText()));
                 } else {
                     attackBtnActionPerformed(evt,messageBody,isProxy,"0",0);
                 }
@@ -363,7 +380,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         outputPanelLayout.setHorizontalGroup(
             outputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(outputPanelLayout.createSequentialGroup()
-                .addComponent(outPutScroll)
+                .addComponent(outPutScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE)
                 .addContainerGap())
         );
         outputPanelLayout.setVerticalGroup(
@@ -376,6 +393,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         analysisJScroll.setBorder(javax.swing.BorderFactory.createTitledBorder("Analysis Result"));
 
         analysisText.setEditable(false);
+        analysisText.setContentType("text/html"); // NOI18N
         analysisJScroll.setViewportView(analysisText);
 
         javax.swing.GroupLayout analysisPanelLayout = new javax.swing.GroupLayout(analysisPanel);
@@ -453,19 +471,35 @@ public class AttackTabPanel extends javax.swing.JPanel {
             instText.setText(TypeValues.keyConfInst);
         } else if(data == 2) {
             this.selectedAttack = TypeValues.ATTACKS.SSRF;
+            instText.setText(TypeValues.ssrfInst);
             subAttackListCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.ssrfSubAtk));
         } else {
             loggerToOutput("Please select proper Attack type");
         }
-        certList.readCertFile();
+        
+
     }//GEN-LAST:event_attackTypeListActionPerformed
 
     private void subAttackListCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_subAttackListCBActionPerformed
-        // TODO add your handling code here:
+        int data;
+        if(this.selectedAttack == TypeValues.ATTACKS.SSRF){
+            data = subAttackListCB.getSelectedIndex();
+            if(data == 0) {
+                instText.setText(TypeValues.ssrfSubInst);
+            } else if(data == 1) { 
+                instText.setText(TypeValues.ssrfHostHeaderInst);
+            } else if(data == 2) {
+                instText.setText(TypeValues.ssrfProtocolSmugglingInst);
+            }
+        }
     }//GEN-LAST:event_subAttackListCBActionPerformed
 
-    private void certListCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_certListCBActionPerformed
-        // TODO add your handling code here:
+    private void certListCBActionPerformed(java.awt.event.ActionEvent evt)  {//GEN-FIRST:event_certListCBActionPerformed
+        List<Certificate> temp = certList.getCertificate();
+        int data = certListCB.getSelectedIndex();
+        Certificate test = temp.get(data-1);
+        privKey = getFileKey(test.getFile());
+
     }//GEN-LAST:event_certListCBActionPerformed
 
     private void proxyInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proxyInputActionPerformed
@@ -482,7 +516,24 @@ public class AttackTabPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_modifyBtnActionPerformed
 
     private void analyzeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyzeBtnActionPerformed
-        // TODO add your handling code here:
+        boolean flag = false;
+        int index1, index2;
+        index1 = messageBody.indexOf("\"sg\"");
+        index2 = messageBody.indexOf("\"dns\"");
+        if (index1 != -1 && index2 != -1){
+            analysisText.setText(TypeValues.analysisHeader + TypeValues.analysisSig + TypeValues.analysisSSRF);
+            flag = true;
+        } else if (index1 != -1 && index2 == -1) {
+            analysisText.setText(TypeValues.analysisHeader + TypeValues.analysisSig);
+            flag = true;
+        }else if (index1 == -1 && index2 != -1) {
+            analysisText.setText(TypeValues.analysisHeader +  TypeValues.analysisSSRF);
+            flag = true;
+        } else {
+            analysisText.setText(TypeValues.analysisHeader +  TypeValues.analysisNoAttack);
+        }
+        
+
     }//GEN-LAST:event_analyzeBtnActionPerformed
 
     private void attackBtnActionPerformed(java.awt.event.ActionEvent evt, String messageBody, boolean proxyVal, String proxyDNS, int proxyPort) {//GEN-FIRST:event_attackBtnActionPerformed
@@ -490,21 +541,37 @@ public class AttackTabPanel extends javax.swing.JPanel {
         String modText= customInputText.getText();
         String inputVal = inputText.getText();
         String inputPort = "8053";
+        String result = "";
         if(this.selectedAttack == TypeValues.ATTACKS.SIGNATUREEXCL){
             loggerToOutput( "Signature Exclusion Attack Selected");
-            loggerToOutput(messageBody);
-            loggerToOutput(inputVal+proxyVal+proxyDNS+proxyPort);
-            sigExcl.autoAttack(messageBody, inputVal, proxyVal, proxyDNS, proxyPort);
+            result = sigExcl.autoAttack(messageBody, inputVal, proxyVal, proxyDNS, proxyPort);
+            loggerToOutput( "Signature Exclusion Attack Response "+result);
         }else if(this.selectedAttack == TypeValues.ATTACKS.KEYCONFUSION){
-            sigExcl.autoAttack(messageBody, inputVal, proxyVal, proxyDNS, proxyPort);
+            loggerToOutput( "Key Confusion Attack Selected");
+            result = keyConfusion.autoAttack(privKey, messageBody, proxyVal, proxyDNS, proxyPort);
+            loggerToOutput( "Key Confusion Attack Response "+result);
+            
         }else if(this.selectedAttack == TypeValues.ATTACKS.SSRF){
-           // String privKey = privKeyField.getText();
-           String privKey = "";
             // need to fix input port 8053
-            ssrfAttack.autoAttack(messageBody,privKey, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
+            int data = subAttackListCB.getSelectedIndex();
+            if(data == 0) {
+                loggerToOutput( "Performing SSRF Attack");
+                ssrfAttack.autoAttack(messageBody,privKey, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
+            } else if(data == 1) { 
+                loggerToOutput( "Performing Host Header SSRF Attack");
+                ssrfAttack.hostheaderAttack(inputVal, proxyVal, proxyDNS, proxyPort);
+            } else if(data == 2) {
+                loggerToOutput( "Performing Protocol Smuggling SSRF Attack");
+                instText.setText(TypeValues.ssrfProtocolSmugglingInst);
+            }
+            
         } else {
             loggerToOutput( "Something went wrong Please check if proper attack has been selected");
-            
+            List<Certificate> temp = certList.getCertificate();
+
+            for (Certificate element : temp) {
+                loggerToOutput(element.getName());
+            }
         }
 
         
@@ -520,6 +587,30 @@ public class AttackTabPanel extends javax.swing.JPanel {
         String outputString = loggerInstance.logToString(getClass(), actionPerformed, Logger.LogLevel.INFO);
         outPutText.setText(temp + "\n" + outputString);
     }
+
+    private void initCertList() {
+        List<Certificate> temp = certList.getCertificate();
+        certListStr.add("Select Certificate");
+        // loggerInstance.log(getClass(), "size"+temp.size(), Logger.LogLevel.INFO);
+        //     for (Certificate cert : temp) {
+        //         certListStr.add(cert.getName());
+        //     }
+        //     String[] stringArray = (String[]) certListStr.toArray(new String[0]);
+            certListCB.setModel(new javax.swing.DefaultComboBoxModel<>(tempCertList));
+    }
+
+    private String getFileKey(String filename) {
+        String temp = "";
+        try {
+            FileInputStream test2 = new FileInputStream(filename);
+            temp = new String(test2.readAllBytes());
+        } catch ( IOException e) {
+            loggerToOutput("File not found");
+        }
+        return temp;
+    }
+
+
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

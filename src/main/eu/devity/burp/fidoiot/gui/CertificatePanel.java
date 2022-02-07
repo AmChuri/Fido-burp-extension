@@ -88,7 +88,7 @@ public class CertificatePanel extends javax.swing.JPanel {
             }
         });
 
-        certType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        certType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "EC", "RSA" }));
 
         saveBtn.setText("Add");
         saveBtn.addActionListener(new java.awt.event.ActionListener() {

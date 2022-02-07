@@ -467,7 +467,7 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="outPutScroll" max="32767" attributes="0"/>
+                      <Component id="outPutScroll"  pref="618" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -538,6 +538,7 @@
                 <Component class="javax.swing.JTextPane" name="analysisText">
                   <Properties>
                     <Property name="editable" type="boolean" value="false"/>
+                    <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
                   </Properties>
                 </Component>
               </SubComponents>
