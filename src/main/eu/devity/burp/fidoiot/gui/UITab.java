@@ -64,20 +64,20 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
      */
     private void initComponents() {
 
-        stdout.println("Initialize UI");
+        stdout.println("Initialize FIDO IoT Protocol Analysis UI");
         signatureTab = new SignatureTab(callbacks);
         loggerTab = new LoggerTab(callbacks);
         certificatePanel = new CertificatePanel();
         helpPanelTab = new helpPanel();
-        // Use Burp UI settings and add as extension tab
-        callbacks.customizeUiComponent(this);
-        callbacks.addSuiteTab(this);
+
         this.addTab("Attacks", attackerTabGroup);
         this.addTab("Certificates", certificatePanel);
         this.addTab("Signature", signatureTab);
         this.addTab("Logger", loggerTab);
         this.addTab("Help", helpPanelTab);
-//        attackerTabGroup.addTab("TEST",  new TestTab());
+        // Use Burp UI settings and add as extension tab
+        callbacks.customizeUiComponent(this);
+        callbacks.addSuiteTab(this);
     }
 
     /**
@@ -115,12 +115,9 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
                         // Create new attacker panel for this message
                         AttackTab attackTab = new AttackTab(callbacks, message);
 
-//                        AttackTabForm attackTabForm = new AttackTabForm(callbacks, message);
                         AttackTabPanel attackTabPanel = new AttackTabPanel(callbacks, message);
                         int newTabCounter = getNewGlobalTabCounter();
                         final String captionTitleValue = Integer.toString(newTabCounter);
-//                        attackerTabGroup.addTab(captionTitleValue, attackTab);
-//                        attackerTabGroup.addTab(captionTitleValue, attackTabForm);
                         attackerTabGroup.addTab(captionTitleValue, attackTabPanel);
                         attackerTabGroup.setSelectedIndex(attackerTabGroup.indexOfTab(captionTitleValue));
 
@@ -128,6 +125,65 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
 
                         tabhead = new javax.swing.JLabel();
                         tabhead.setText("Attack");
+
+                        // Tab caption
+                        JPanel tabCaptionPanel = new JPanel(new GridBagLayout());
+                        tabCaptionPanel.setOpaque(false);
+                        JLabel captionTitle = new JLabel(captionTitleValue);
+                        captionTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 3));
+
+                        // Define close button
+                        final JButton closeButton = new JButton("x");
+                        closeButton.setToolTipText("Click to close tab.");
+                        closeButton.setOpaque(false);
+                        closeButton.setContentAreaFilled(false);
+                        closeButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+                        closeButton.setPreferredSize(new Dimension(18, 18));
+                        closeButton.setMargin(new Insets(0, 0, 0, 0));
+                        closeButton.setForeground(Color.gray);
+
+                        // Close button mouse listener performing the tab
+                        // removal on mouse click and defining hover effects
+                        closeButton.addMouseListener(new MouseListener() {
+
+                            @Override
+                            public void mouseClicked(MouseEvent e) {
+                                int index = attackerTabGroup.indexOfTab(captionTitleValue);
+
+                                if (index >= 0) {
+                                    attackerTabGroup.removeTabAt(index);
+                                }
+                            }
+
+                            @Override
+                            public void mousePressed(MouseEvent e) {
+                            }
+
+                            @Override
+                            public void mouseReleased(MouseEvent e) {
+                            }
+
+                            @Override
+                            public void mouseEntered(MouseEvent e) {
+                                closeButton.setForeground(Color.black);
+                            }
+
+                            @Override
+                            public void mouseExited(MouseEvent e) {
+                                closeButton.setForeground(Color.gray);
+                            }
+                        });
+
+                        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+                        gridBagConstraints.gridx = 0;
+                        gridBagConstraints.gridy = 0;
+                        gridBagConstraints.weightx = 1;
+                        tabCaptionPanel.add(captionTitle, gridBagConstraints);
+
+                        gridBagConstraints.gridx++;
+                        gridBagConstraints.weightx = 0;
+                        tabCaptionPanel.add(closeButton, gridBagConstraints);
+                        attackerTabGroup.setTabComponentAt(attackerTabGroup.indexOfTab(captionTitleValue), tabCaptionPanel);
 
                     } catch (Exception e) {
                         stdout.println(e);

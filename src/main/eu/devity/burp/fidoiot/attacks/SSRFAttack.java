@@ -54,7 +54,7 @@ public class SSRFAttack {
         signatureFn = new SignatureFn();
     }
 
-    public void hostheaderAttack(String modText, boolean isProxy, String proxyDNS, int proxyPort){
+    public byte[] hostheaderAttack(String modText, boolean isProxy, String proxyDNS, int proxyPort){
         loggerInstance.log(getClass(), "Executing Host Header SSRF Attack"  , Logger.LogLevel.INFO);
         List<String> headers = requestInfo.getHeaders();
         String request = new String(requestResponse.getRequest());
@@ -89,7 +89,8 @@ public class SSRFAttack {
             this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
         }
         updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
-        this.sendAttackReq();
+        // this.sendAttackReq();
+        return updateMessage;
     }
 
 
@@ -146,8 +147,9 @@ public class SSRFAttack {
 
     /**
      * Automatic SSRF attack with input given by the user
+     * @return 
      */
-    public void autoAttack(String bodyTxt, String privKey, String inputVal, String inputPort, boolean proxyVal, String proxyDNS, int proxyPort) {
+    public byte[] autoAttack(String bodyTxt, String privKey,String sigAlgorithm, String inputVal, String inputPort, boolean proxyVal, String proxyDNS, int proxyPort) {
         // steps for type 22 get bo tag {}
         int tempbod =  bodyTxt.indexOf("\"bo\""); // there are two bo
         int temp =  bodyTxt.indexOf("\"bo\"", tempbod+1);
@@ -164,19 +166,16 @@ public class SSRFAttack {
         
         // send request to Signature Tab
         privKey = privKey.replaceAll("\\n", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
-        String SignValue = signatureFn.computeSignature(modSignBody, privKey, "EC", "SHA256withECDSA");
+        String SignValue = signatureFn.computeSignature(modSignBody, privKey, "EC", sigAlgorithm);
         String closingStr = ",\"pk\":[0,0,[0]],\"sg\":[72,\"" + SignValue + "\"]}} ";
         String reqStr = beforeSign + modSignBody + closingStr;
-        /*
-        loggerInstance.log(getClass(), remainStr  , Logger.LogLevel.INFO);
-        loggerInstance.log(getClass(), signBody  , Logger.LogLevel.INFO);
-        loggerInstance.log(getClass(), beforeSign  , Logger.LogLevel.INFO);
-        */
+
         loggerInstance.log(getClass(), SignValue  , Logger.LogLevel.INFO);
         loggerInstance.log(getClass(), reqStr  , Logger.LogLevel.INFO);
 
         byte[] updatedReq = this.generateRequest(reqStr, proxyVal, proxyDNS, proxyPort);
-        this.sendAttackReq();
+        // this.sendAttackReq();
+        return updatedReq;
     }
 
 

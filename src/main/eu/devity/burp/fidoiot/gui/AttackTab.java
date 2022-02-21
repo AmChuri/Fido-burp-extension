@@ -339,12 +339,12 @@ public class AttackTab extends JPanel{
             // working sign excl
             // byte[] updatedReq = sigExcl.generateRequest(modText,proxyVal, proxyDNS, proxyPort);
             // sigExcl.sendAttackReq();
-            sigExcl.autoAttack(messageBody, inputVal, proxyVal, proxyDNS, proxyPort);
+            sigExcl.autoAttack(messageBody, inputVal, proxyVal, proxyDNS, proxyPort,"0");
         } else{
             // wip ssrf attack
             String privKey = privKeyField.getText();
             
-            ssrfAttack.autoAttack(messageBody,privKey, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
+            ssrfAttack.autoAttack(messageBody,privKey,"SHA256withECDSA", inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
         }
 
     }

@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 
-
 public class SignatureExcl {
 
     private static PrintWriter stdout;
@@ -46,7 +45,7 @@ public class SignatureExcl {
     private String resultMsgBody;
     AttackExecutor attackRequestExecutor;
 
-    public SignatureExcl(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
+    public SignatureExcl(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message) {
 
         this.callbacks = callbacks;
         this.helpers = callbacks.getHelpers();
@@ -55,25 +54,17 @@ public class SignatureExcl {
         this.stdout = new PrintWriter(callbacks.getStdout(), true);
         this.httpService = message.getHttpService();
 
-
     }
 
+    public void signatureAttack() {
 
-    public void signatureAttack(){
 
-
-//        String request = new String(requestResponse.getRequest());
-//        String messageBody = request.substrin
-//        g(requestInfo.getBodyOffset());
-//        byte[] updateMessage = helpers.buildHttpMessage(requestInfo.getHeaders(), messageBody.getBytes());
-//        requestResponse.setRequest(updateMessage);
 
         List headers = requestInfo.getHeaders();
         headers.add("Test: BurpExHeader");
         String request = new String(requestResponse.getRequest());
         String messageBody = request.substring(requestInfo.getBodyOffset());
-        stdout.println(requestInfo.getUrl());
-        stdout.println(messageBody);
+
         for (IParameter param : requestInfo.getParameters()) {
             // parameter with empty signature
             if (param.getName().matches("sg")) {
@@ -82,33 +73,24 @@ public class SignatureExcl {
             }
         }
 
-        if(flag) {
+        if (flag) {
             Matcher m = Pattern.compile("(?=(sg))").matcher(messageBody);
             List<Integer> pos = new ArrayList<Integer>();
             while (m.find()) {
                 pos.add(m.start());
             }
 
-            for(int n:pos) {
-                messageBody = modifyString(messageBody, (n-diff));
+            for (int n : pos) {
+                messageBody = modifyString(messageBody, (n - diff));
             }
             stdout.println("Performing Signature exclusion attack");
-            stdout.println(messageBody);
-            stdout.println(requestInfo.getUrl());
-//            byte[] updateMessage = helpers.buildHttpMessage(requestInfo.getHeaders(), messageBody.getBytes());
-//            requestResponse.setRequest(updateMessage);
-//
-//            IHttpService httpService = requestResponse.getHttpService();
-//            callbacks.makeHttpRequest(httpService, requestResponse.getRequest());
-//
-//            stdout.println(requestResponse.getResponse());
         }
     }
 
-    public String modifyString(String msgStr, int indexStart){
+    public String modifyString(String msgStr, int indexStart) {
         String values = "0,0";
-        String tempStr = msgStr.substring(0,indexStart+5);
-        String truncatedStr = msgStr.substring(indexStart+6);
+        String tempStr = msgStr.substring(0, indexStart + 5);
+        String truncatedStr = msgStr.substring(indexStart + 6);
         int y = truncatedStr.indexOf("]");
         String remainStr = truncatedStr.substring(y);
         tempStr = tempStr.concat(values).concat(remainStr);
@@ -116,120 +98,120 @@ public class SignatureExcl {
         return tempStr;
     }
 
-    public void autoAttackSigExcl(){
-        loggerInstance.log(getClass(), "Executing AutoMated Signature Exclusion Attack"  , Logger.LogLevel.INFO);
+    public void autoAttackSigExcl() {
+        loggerInstance.log(getClass(), "Executing AutoMated Signature Exclusion Attack", Logger.LogLevel.INFO);
         List headers = requestInfo.getHeaders();
         String request = new String(requestResponse.getRequest());
         String messageBody = request.substring(requestInfo.getBodyOffset());
 
-        stdout.println(messageBody);
         Matcher m = Pattern.compile("(?=(sg))").matcher(messageBody);
         List<Integer> pos = new ArrayList<Integer>();
         while (m.find()) {
             pos.add(m.start());
         }
 
-        for(int n:pos) {
-            messageBody = modifyString(messageBody, (n-diff));
+        for (int n : pos) {
+            messageBody = modifyString(messageBody, (n - diff));
         }
         updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
         // WIP to add proxy
-       // this.sendAttackReq();
+        // this.sendAttackReq();
     }
 
     /**
      * User edited message converted into request
+     * 
      * @param modText
      * @return
      */
 
-    public byte[] generateRequest(String modText, boolean isProxy, String proxyDNS, int proxyPort){
-        //List headers = requestInfo.getHeaders();
+    public byte[] generateRequest(String modText, boolean isProxy, String proxyDNS, int proxyPort) {
+        // List headers = requestInfo.getHeaders();
         List<String> headers = requestInfo.getHeaders();
         String request = new String(requestResponse.getRequest());
         String messageBody = request.substring(requestInfo.getBodyOffset());
-        if(isProxy){
-            this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
+        if (isProxy) {
+            this.httpService = helpers.buildHttpService(proxyDNS, proxyPort, this.httpService.getProtocol());
         }
         updateMessage = helpers.buildHttpMessage(headers, modText.getBytes());
         return updateMessage;
     }
 
-
-    public void sendAttackReq(){
-        loggerInstance.log(getClass(), "Executing Signature Exclusion Attack"  , Logger.LogLevel.INFO);
+    public void sendAttackReq() {
+        loggerInstance.log(getClass(), "Executing Signature Exclusion Attack", Logger.LogLevel.INFO);
         attackRequestExecutor = new AttackExecutor(updateMessage);
         attackRequestExecutor.execute();
     }
 
     /**
      * Auto attack for sign exclusion
-     * @return 
+     * 
+     * @return
      */
-    public String autoAttack(String bodyTxt, String inputVal, boolean proxyVal, String proxyDNS, int proxyPort) {
+    public byte[] autoAttack(String bodyTxt, String inputVal, boolean proxyVal, String proxyDNS, int proxyPort, String attackVector) {
         List<String> headers = requestInfo.getHeaders();
         Integer msgType = 0;
-        for(String header : headers){
-            if(header.contains("msg/22")){
+        for (String header : headers) {
+            if (header.contains("msg/22")) {
                 msgType = 22;
                 break;
             }
-            if(header.contains("msg/32")){
+            if (header.contains("msg/32")) {
                 msgType = 32;
                 break;
             }
-            if(header.contains("msg/44")){
+            if (header.contains("msg/44")) {
                 msgType = 44;
                 break;
             }
-         }
-         int temp; 
-         String closingTag, newStr;
-         if(msgType == 22){
-            int tempbod =  bodyTxt.indexOf("\"sg\""); // there are two bo
-            temp =  bodyTxt.indexOf("\"sg\"", tempbod+1);
-            closingTag = "]}}";
-         } else {
-            temp =  bodyTxt.indexOf("\"sg\"");
-            closingTag = "]}";
-         }
-         String remainStr = bodyTxt.substring(temp+6);
-         if (inputVal.length() == 0){
-            newStr = bodyTxt.substring(0,temp+6) + "0,0" + closingTag;
-         } else {
-            newStr = bodyTxt.substring(0,temp+6) + inputVal.length() + "," + "\""+ inputVal +"\"" + closingTag;
-         }
-         if(proxyVal){
-            this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
         }
-        updateMessage = helpers.buildHttpMessage(headers, newStr.getBytes());
-        this.sendAttackReq();
-
-
-        int totalTime = 0;
-
-        while(!attackRequestExecutor.isDone()){
-            try {
-                totalTime +=1;
-                Thread.sleep(2000);
+        int temp;
+        String closingTag, newStr;
+        // check if message contains signature
+        int sigCheck = bodyTxt.indexOf("\"sg\"");
+        if (sigCheck == -1) {
+            return "No signature found inside message body. Attack Not possible.".getBytes();
+        } else {
+            if (msgType == 22) {
+                int tempbod = bodyTxt.indexOf("\"sg\""); // there are two bo
+                temp = bodyTxt.indexOf("\"sg\"", tempbod + 1);
+                closingTag = "]}}";
+            } else {
+                temp = bodyTxt.indexOf("\"sg\"");
+                closingTag = "]}";
             }
-            catch (Exception ex) {
-                loggerInstance.log(getClass(), "Error Executing attack"  , Logger.LogLevel.ERROR);
+            String remainStr = bodyTxt.substring(temp + 6);
+            if (inputVal.length() == 0) {
+                // four conditions to be considered 0, None, null, remove
+                if (attackVector == "0") {
+                    newStr = bodyTxt.substring(0, temp + 6) + "0,0" + closingTag;
+                } else if(attackVector == "null") {
+                    newStr = bodyTxt.substring(0, temp + 6) + "\"NULL\",\"NULL\"" + closingTag;
+                } else if(attackVector == "None") {
+                    newStr = bodyTxt.substring(0, temp + 6) + "0,\"None\"" + closingTag;
+                } else if(attackVector == "remove") {
+                    newStr = bodyTxt.substring(0, temp-1) +  closingTag.substring(1);
+                } else{
+                    newStr = bodyTxt.substring(0, temp + 6) + "0,0" + closingTag;
+                }
+                
+            } else {
+                // custom values
+                newStr = bodyTxt.substring(0, temp + 6) + inputVal.length() + "," + "\"" + inputVal + "\"" + closingTag;
             }
-
-            if(totalTime == 10){
-                loggerInstance.log(getClass(), "Error Executing attack"  , Logger.LogLevel.ERROR);
-                break;
+            if (proxyVal) {
+                this.httpService = helpers.buildHttpService(proxyDNS, proxyPort, this.httpService.getProtocol());
             }
+            updateMessage = helpers.buildHttpMessage(headers, newStr.getBytes());
+            // this.sendAttackReq();
+return updateMessage;
+            // return resultMsgBody;
         }
-        return resultMsgBody;
     }
-
 
     /**
      * Java Swing worker to execute attack in the background
      */
-
 
     private class AttackExecutor extends SwingWorker<IHttpRequestResponse, Integer> {
         private byte[] attackRequest;
@@ -252,19 +234,17 @@ public class SignatureExcl {
             try {
                 requestResponse = get();
             } catch (InterruptedException | ExecutionException e) {
-                loggerInstance.log(SignatureExcl.class, "Failed to get request result: " + e.getMessage(), Logger.LogLevel.ERROR);
+                loggerInstance.log(SignatureExcl.class, "Failed to get request result: " + e.getMessage(),
+                        Logger.LogLevel.ERROR);
                 return;
             }
             // getting message from the response
             String temp = new String(requestResponse.getResponse());
             responseInfo = helpers.analyzeResponse(requestResponse.getResponse());
             String messageBody = temp.substring(responseInfo.getBodyOffset());
-            loggerInstance.log(getClass(), "Attack Performed: " +messageBody , Logger.LogLevel.DEBUG);
+            loggerInstance.log(getClass(), "Attack Performed: " + messageBody, Logger.LogLevel.DEBUG);
             resultMsgBody = messageBody;
         }
     }
-
-
-
 
 }

@@ -11,11 +11,14 @@ public class TypeValues {
         SSRF
       }
 
-    public static String signExclSubAtk[] = {"Signature Exclusion"};
+    public static String signExclSubAtk[] = {"0 Value", "NULL", "None", "Remove signature", "ALL"};
 
-    public static String keyConfSubAtk[] = {"Key Confusion"};
+    public static String keyConfSubAtk[] = {"PKCS Format Key", "String Format", "No Header Footer", "ALL"};
 
-    public static String ssrfSubAtk[] = {"SSRF", "Host Header SSRF", "Protocol Smuggling SSRF"};
+    public static String ssrfSubAtk[] = {"SSRF", "Host Header SSRF", "X-Host Header SSRF", "ALL"};
+
+    public static String signatureType[]={"SHA1withRSA", "SHA256withRSA", "SHA384withRSA", "SHA512withRSA",
+            "NONEwithECDSA","SHA1withECDSA","SHA256withECDSA","SHA384withECDSA", "SHA512withECDSA"};
 
     public static String signExclInst = "<h3>Signature Exclusion Attack</h3>\n<ul>\n<li>Select Signature Exclusion attack in Attack Dropdown</li>\n<li>Sub Attack is automatically selected</li>\n<li>Press Attack</li>\n</ul>";
     
@@ -38,6 +41,11 @@ public class TypeValues {
     public static String analysisSSRF = "<ul>\n<li>URL values are observed</li>\n<li>SSRF Attacks are possible</li>\n</ul> ";
 
     public static String analysisNoAttack = "<ul>\n<li>No Attack Seems Possible</li>\n</ul> ";
+
+
+    public static String signExclAttackParam[] = {"0", "null", "None", "remove"};
+
+    public static String ssrfAttackParam[] = {"bodySigning", "Host", "X-Host"};
 
     
 

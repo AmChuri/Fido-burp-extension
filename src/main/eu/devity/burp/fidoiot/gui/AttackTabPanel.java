@@ -6,7 +6,9 @@ package src.main.eu.devity.burp.fidoiot.gui;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
+import burp.IHttpService;
 import burp.IRequestInfo;
+import burp.IResponseInfo;
 import src.main.eu.devity.burp.fidoiot.attacks.KeyConfusion;
 import src.main.eu.devity.burp.fidoiot.attacks.SSRFAttack;
 import src.main.eu.devity.burp.fidoiot.attacks.SignatureExcl;
@@ -23,6 +25,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
 
 import javax.swing.BorderFactory;
 import javax.swing.border.LineBorder;
@@ -59,6 +63,9 @@ public class AttackTabPanel extends javax.swing.JPanel {
     List<String> certListStr = new ArrayList<>();
     String tempCertList[]={"Select Certificate", "Type 22 Public Key", "Type 22 Private key", "Custom EC 256", "Custom EC 384", "Custom RSA 2048"};
     String privKey = "";
+    private IHttpService httpService;
+    AttackExecutor attackRequestExecutor;
+    private IResponseInfo responseInfo;
 
 
     /**
@@ -74,6 +81,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         this.helpers = callbacks.getHelpers();
         this.requestResponse = message;
         this.requestInfo = helpers.analyzeRequest(message);
+        this.httpService = message.getHttpService();
         ssrfAttack = new SSRFAttack(callbacks, message);
         sigExcl = new SignatureExcl(callbacks, message);
         keyConfusion = new KeyConfusion(callbacks, message);
@@ -129,7 +137,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         modifyBtn = new javax.swing.JButton();
         analyzeBtn = new javax.swing.JButton();
         attackBtn = new javax.swing.JButton();
-        inputURL = new javax.swing.JTextField();
+        inputText = new javax.swing.JTextField();
         proxyInput = new javax.swing.JCheckBox();
         proxyHostText = new javax.swing.JTextField();
         proxyPortText = new javax.swing.JTextField();
@@ -314,7 +322,12 @@ public class AttackTabPanel extends javax.swing.JPanel {
         modifyBtn.setText("Modify");
         modifyBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                modifyBtnActionPerformed(evt);
+                if(isProxy){
+                    modifyBtnActionPerformed(evt, isProxy,proxyHostText.getText(),Integer.parseInt(proxyPortText.getText()));
+                } else {
+                    modifyBtnActionPerformed(evt,isProxy,"0",0);
+                }
+                // modifyBtnActionPerformed(evt);
             }
         });
 
@@ -328,7 +341,12 @@ public class AttackTabPanel extends javax.swing.JPanel {
         attackBtn.setText("Attack");
         attackBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                attackBtnActionPerformed(evt);
+                if(isProxy){
+                    attackBtnActionPerformed(evt,messageBody,isProxy,proxyHostText.getText(),Integer.parseInt(proxyPortText.getText()));
+                } else {
+                    attackBtnActionPerformed(evt,messageBody,isProxy,"0",0);
+                }
+                // attackBtnActionPerformed(evt);
             }
         });
 
@@ -356,7 +374,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(proxyPortText)
-                    .addComponent(inputURL)
+                    .addComponent(inputText)
                     .addGroup(customInputPAnelLayout.createSequentialGroup()
                         .addComponent(proxyInput)
                         .addContainerGap(165, Short.MAX_VALUE))
@@ -376,7 +394,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
                 .addGap(21, 21, 21)
                 .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(inputLabel)
-                    .addComponent(inputURL, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputText, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(customInputPAnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(proxyInput)
@@ -511,6 +529,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         int data = certListCB.getSelectedIndex();
         Certificate test = temp.get(data-1);
         privKey = getFileKey(test.getFile());
+        sigAlgoCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.signatureType));
 
     }//GEN-LAST:event_certListCBActionPerformed
 
@@ -540,12 +559,93 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
     }//GEN-LAST:event_analyzeBtnActionPerformed
 
-    private void attackBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackBtnActionPerformed
-        // TODO add your handling code here:
+    private void attackBtnActionPerformed(java.awt.event.ActionEvent evt, String messageBody, boolean proxyVal, String proxyDNS, int proxyPort) {//GEN-FIRST:event_attackBtnActionPerformed
+        loggerToOutput( "Performing Attack");
+        String modText= customInputText.getText();
+        String[] inputValues;
+        String inputVal = inputText.getText();
+        String inputPort = "";
+        String sigAlgorithm = "";
+        int sigAlgo = sigAlgoCB.getSelectedIndex();
+        if(inputText.getText().length() != 0){
+            inputValues = getPort(inputText.getText());
+            inputVal = inputValues[0];
+            inputPort = inputValues[1];
+        }
+        byte[] updatedMessage;
+        int data = subAttackListCB.getSelectedIndex();
+        if (proxyVal) {
+            this.httpService = helpers.buildHttpService(proxyDNS, proxyPort, this.httpService.getProtocol());
+        }
+        if(this.selectedAttack == TypeValues.ATTACKS.SIGNATUREEXCL){
+            loggerToOutput( "Signature Exclusion Attack Selected");
+            if(data <= 3){ // single attack selected
+                loggerToOutput( "Performing Signature Exclusion Attack with values "+TypeValues.signExclSubAtk[data]);
+                updatedMessage = sigExcl.autoAttack(messageBody, inputVal, proxyVal, proxyDNS, proxyPort, TypeValues.signatureType[data]);
+
+                this.sendAttackReq(updatedMessage);
+            } else{ //perform all attacks
+                for(String i : TypeValues.signExclAttackParam ){
+                    loggerToOutput( "Performing Signature Exclusion Attack with values "+i);
+                    updatedMessage = sigExcl.autoAttack(messageBody, inputVal, proxyVal, proxyDNS, proxyPort, i);
+                    this.sendAttackReq(updatedMessage);
+                }
+            }      
+        }else if(this.selectedAttack == TypeValues.ATTACKS.KEYCONFUSION){
+            loggerToOutput( "Key Confusion Attack Selected");
+            updatedMessage = keyConfusion.autoAttack(privKey, messageBody, proxyVal, proxyDNS, proxyPort);
+            // loggerToOutput( "Key Confusion Attack Response "+result);
+            this.sendAttackReq(updatedMessage);
+
+        }else if(this.selectedAttack == TypeValues.ATTACKS.SSRF){
+            // need to fix input port 8053
+            
+            if(data == 0) {
+                if(privKey.length() == 0) {
+                    loggerToOutput( "Please Select proper key and Algorithm to perform SSRF Attack");
+                } else {
+                    
+                    sigAlgorithm = TypeValues.signatureType[sigAlgo];
+                    String[] tempKeys = {privKey, sigAlgorithm};
+                    ssrfAttackExecutor(TypeValues.ssrfAttackParam[data], data, tempKeys, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
+                    // ssrfAttack.autoAttack(messageBody,privKey, sigAlgorithm, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
+                }
+            } else if(data == 1 || data == 2) { 
+               
+                // inputVal = checkHost(inputVal, TypeValues.ssrfAttackParam[data]);
+                // ssrfAttack.hostheaderAttack(inputVal +":"+inputPort , proxyVal, proxyDNS, proxyPort);
+                String[] tempKeys = {};
+                ssrfAttackExecutor(TypeValues.ssrfAttackParam[data], data, tempKeys, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
+
+            } 
+            else if(data == 3) {
+                loggerToOutput( "Performing all types of SSRF Attack");
+                int dataIndex = 0;
+                for(String i : TypeValues.ssrfAttackParam ){
+                    if(privKey.length() == 0) {
+                        loggerToOutput("Please Select proper key and Algorithm to perform SSRF Attack");
+                        break;
+                    }
+                    sigAlgorithm = TypeValues.signatureType[sigAlgo];
+                    String[] tempKeys = {privKey, sigAlgorithm};
+                    ssrfAttackExecutor(i, dataIndex, tempKeys, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
+                    dataIndex++;
+                }
+            }
+
+        } else {
+            loggerToOutput( "Something went wrong Please check if proper attack has been selected");
+            List<Certificate> temp = certList.getCertificate();
+        }
+
     }//GEN-LAST:event_attackBtnActionPerformed
 
-    private void modifyBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modifyBtnActionPerformed
-        // TODO add your handling code here:
+    private void modifyBtnActionPerformed(java.awt.event.ActionEvent evt, boolean proxyVal, String proxyDNS, int proxyPort) {//GEN-FIRST:event_modifyBtnActionPerformed
+        loggerToOutput("Request was modified");
+        String modText = customInputText.getText();
+        byte[] updatedReq = sigExcl.generateRequest(modText,proxyVal, proxyDNS, proxyPort);
+        String temp = new String(updatedReq);
+        requestText.setText(temp);
     }//GEN-LAST:event_modifyBtnActionPerformed
 
     private void sigAlgoCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sigAlgoCBActionPerformed
@@ -585,6 +685,85 @@ public class AttackTabPanel extends javax.swing.JPanel {
         return temp;
     }
 
+    /**
+     * Get url and port value from the input
+     */
+    private String[] getPort(String inputValue) {
+        String[] temp = inputValue.split(":");
+        return temp;
+    }
+    /**
+     * Check if Host value is present especially for Host header ssrf
+     * @Param input
+     * @return host
+     */
+    private String checkHost(String inputValue, String typeHost) {
+        return typeHost + ":" + inputValue;
+    }
+    /**
+     * Perform SSRF Attacks based on attack type
+     * @Param input
+     */
+    private void ssrfAttackExecutor(String attackType,int data, String[] bodyParam, String inputVal, String inputPort, 
+                            boolean proxyVal, String proxyDNS, int proxyPort) {
+        byte [] updatedMessage;
+        if(attackType == "bodySigning") {
+            loggerToOutput( "SSRF Attack Selected");
+            updatedMessage = ssrfAttack.autoAttack(messageBody,bodyParam[0], bodyParam[1], inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
+        } else { 
+            loggerToOutput( "Performing "+attackType+" Header SSRF Attack");
+            inputVal = checkHost(inputVal, TypeValues.ssrfAttackParam[data]);
+            updatedMessage = ssrfAttack.hostheaderAttack(inputVal +":"+inputPort , proxyVal, proxyDNS, proxyPort);
+        } 
+        this.sendAttackReq(updatedMessage);
+    }
+
+    public void sendAttackReq(byte[] updateMessage) {
+        loggerInstance.log(getClass(), "Executing Attack", Logger.LogLevel.INFO);
+        attackRequestExecutor = new AttackExecutor(updateMessage);
+        attackRequestExecutor.execute();
+    }
+        /**
+     * Java Swing worker to execute attack in the background
+     */
+
+    private class AttackExecutor extends SwingWorker<IHttpRequestResponse, Integer> {
+        private byte[] attackRequest;
+
+        AttackExecutor(byte[] attackRequest) {
+            this.attackRequest = attackRequest;
+        }
+
+        @Override
+        // Fire prepared request and return responses as IHttpRequestResponse
+        protected IHttpRequestResponse doInBackground() {
+            return callbacks.makeHttpRequest(httpService, attackRequest);
+        }
+
+        @Override
+        // Add response to response list, add new entry to attacker result
+        // window table and update process bar
+        protected void done() {
+            IHttpRequestResponse requestResponse;
+            try {
+                requestResponse = get();
+            } catch (InterruptedException | ExecutionException e) {
+                String temp = outPutText.getText();
+                String outputString = loggerInstance.logToString(getClass(), "Failed to get request result: " + e.getMessage(),
+                Logger.LogLevel.ERROR);
+                outPutText.setText(temp + "\n" + outputString);
+                loggerInstance.log(AttackTabPanel.class, "Failed to get request result: " + e.getMessage(),
+                        Logger.LogLevel.ERROR);
+                return;
+            }
+            // getting message from the response
+            String temp = new String(requestResponse.getResponse());
+            responseInfo = helpers.analyzeResponse(requestResponse.getResponse());
+            String messageBody = temp.substring(responseInfo.getBodyOffset());
+            loggerInstance.log(getClass(), "Attack Performed: " + messageBody, Logger.LogLevel.DEBUG);
+            loggerToOutput( "Attack Performed: " + messageBody);
+        }
+    }
 
 
 
@@ -604,7 +783,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
     private javax.swing.JPanel customValuePanel;
     private javax.swing.JPanel dropDownPanel;
     private javax.swing.JLabel inputLabel;
-    private javax.swing.JTextField inputURL;
+    private javax.swing.JTextField inputText;
     private javax.swing.JPanel instPanel;
     private javax.swing.JScrollPane instScroll;
     private javax.swing.JTextPane instText;

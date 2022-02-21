@@ -419,7 +419,7 @@
                       </Group>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="proxyPortText" max="32767" attributes="0"/>
-                          <Component id="inputURL" alignment="0" max="32767" attributes="0"/>
+                          <Component id="inputText" alignment="0" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="proxyInput" min="-2" max="-2" attributes="0"/>
                               <EmptySpace pref="165" max="32767" attributes="0"/>
@@ -444,7 +444,7 @@
                       <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="inputLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="inputURL" min="-2" pref="26" max="-2" attributes="0"/>
+                          <Component id="inputText" min="-2" pref="26" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -527,7 +527,7 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="attackBtnActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JTextField" name="inputURL">
+            <Component class="javax.swing.JTextField" name="inputText">
             </Component>
             <Component class="javax.swing.JCheckBox" name="proxyInput">
               <Events>

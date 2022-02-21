@@ -27,7 +27,6 @@ public class KeyConfusion {
   private IHttpService httpService;
   private static final Logger loggerInstance = Logger.getInstance();
   private byte[] updateMessage;
-  private String resultMsgBody;
   AttackExecutor attackRequestExecutor;
 
     public KeyConfusion(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
@@ -38,7 +37,7 @@ public class KeyConfusion {
         this.httpService = message.getHttpService();
     }
 
-    public String autoAttack(String privKey, String messageBody, boolean proxyVal, String proxyDNS, int proxyPort){
+    public byte[] autoAttack(String privKey, String messageBody, boolean proxyVal, String proxyDNS, int proxyPort){
 
       List<String> headers = requestInfo.getHeaders();
       Integer msgType = 0;
@@ -80,26 +79,9 @@ public class KeyConfusion {
             this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
         }
         updateMessage = helpers.buildHttpMessage(headers, newStr.getBytes());
-        this.sendAttackReq();
+        // this.sendAttackReq();
 
-
-        int totalTime = 0;
-
-        while(!attackRequestExecutor.isDone()){
-            try {
-                totalTime +=1;
-                Thread.sleep(2000);
-            }
-            catch (Exception ex) {
-                loggerInstance.log(getClass(), "Error Executing attack"  , Logger.LogLevel.ERROR);
-            }
-
-            if(totalTime == 10){
-                loggerInstance.log(getClass(), "Error Executing attack"  , Logger.LogLevel.ERROR);
-                break;
-            }
-        }
-        return resultMsgBody;
+        return updateMessage;
 
     }
 
@@ -171,7 +153,6 @@ public class KeyConfusion {
           responseInfo = helpers.analyzeResponse(requestResponse.getResponse());
           String messageBody = temp.substring(responseInfo.getBodyOffset());
           loggerInstance.log(getClass(), "Attack Performed: " +messageBody , Logger.LogLevel.DEBUG);
-          resultMsgBody = messageBody;
       }
   }
     
