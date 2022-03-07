@@ -154,6 +154,8 @@ public class AttackTabPanel extends javax.swing.JPanel {
         certLabel.setText("Certificate");
 
         attackTypeList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Signature Exclusion", "Key Confusion", "SSRF" }));
+        attackTypeList.setSelectedIndex(0);
+        setSubAttackList(0);
         attackTypeList.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 attackTypeListActionPerformed(evt);
@@ -491,6 +493,11 @@ public class AttackTabPanel extends javax.swing.JPanel {
     private void attackTypeListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackTypeListActionPerformed
         // TODO add your handling code here:
         int data = attackTypeList.getSelectedIndex();
+        setSubAttackList(data);
+
+    }//GEN-LAST:event_attackTypeListActionPerformed
+
+    private void setSubAttackList(int data){
         if(data == 0) {
             this.selectedAttack = TypeValues.ATTACKS.SIGNATUREEXCL;
             subAttackListCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.signExclSubAtk));
@@ -506,9 +513,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         } else {
             loggerToOutput("Please select proper Attack type");
         }
-        
-
-    }//GEN-LAST:event_attackTypeListActionPerformed
+    }
 
     private void subAttackListCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_subAttackListCBActionPerformed
         int data;

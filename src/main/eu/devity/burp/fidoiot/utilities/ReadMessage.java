@@ -45,13 +45,9 @@ public class ReadMessage implements  IHttpListener,IProxyListener {
             String request = new String(messageInfo.getRequest());
             String messageBody = request.substring(requestInfo.getBodyOffset());
             for (IParameter param : requestInfo.getParameters()) {
-                // parameter with empty signature
-                if(param.getName().matches("sg")){
-                    messageInfo.setComment("Signature excl possible");
+                if(param.getName().matches("sg") | param.getName().matches("dn") | param.getName().matches("po") | param.getName().matches("dns1")| param.getName().matches("port1")){
+                    messageInfo.setComment("FIDO IOT Analysis");
                     messageInfo.setHighlight("red");
-//                    emptyArray = helpers.addParameter(emptyArray,tmpParameter);
-//                 test = helpers.updateParameter(test, tmpParameter);
-                    //messageInfo.setRequest(updateMessage);
 
                 }
             }
@@ -67,7 +63,6 @@ public class ReadMessage implements  IHttpListener,IProxyListener {
 
             IRequestInfo rqInfo = helpers.analyzeRequest(messageInfo);
             List headers = rqInfo.getHeaders();
-            headers.add("Test: BurpExHeader");
             String request = new String(messageInfo.getRequest());
             String messageBody = request.substring(rqInfo.getBodyOffset());
             for (IParameter param : rqInfo.getParameters()) {
@@ -76,21 +71,6 @@ public class ReadMessage implements  IHttpListener,IProxyListener {
                     flag = true;
                 }
             }
-//            if(flag) {
-//                Matcher m = Pattern.compile("(?=(sg))").matcher(messageBody);
-//                List<Integer> pos = new ArrayList<Integer>();
-//                while (m.find()) {
-//                    pos.add(m.start());
-//                }
-//                for(int n:pos) {
-//                    messageBody = modifyString(messageBody, diff);
-//                }
-//                stdout.println("Performing Signature exclusion attack");
-//                stdout.println(rqInfo.getUrl());
-//                byte[] updateMessage = helpers.buildHttpMessage(headers, messageBody.getBytes());
-//                messageInfo.setRequest(updateMessage);
-//                stdout.println(messageInfo.getResponse());
-//            }
 
         }
     }

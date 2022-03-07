@@ -6,6 +6,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 
 import java.util.Objects;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import java.security.MessageDigest;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
@@ -14,6 +18,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
 
@@ -29,6 +34,7 @@ public class SignatureFn {
         public String computeSignature(String modText, String privateKeyContent, String keyinstanceType, String sigType) {
             loggerInstance.log(getClass(), "Compute Signature", Logger.LogLevel.INFO);
             MessageDigest md;
+            String finalSign = "";
             
             try {
                 KeyFactory kf = KeyFactory.getInstance(keyinstanceType);
@@ -41,15 +47,37 @@ public class SignatureFn {
     
                 signature.update(modText.getBytes());
                 byte[] digitalSignature = signature.sign();
-                String test = Base64.getEncoder().encodeToString(digitalSignature);
-                loggerInstance.log(getClass(), test, Logger.LogLevel.INFO);
-                return test;
+                finalSign = Base64.getEncoder().encodeToString(digitalSignature);
+                loggerInstance.log(getClass(), finalSign, Logger.LogLevel.INFO);
+                return finalSign;
     
             }
             catch (InvalidKeySpecException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e){
                 loggerInstance.log(getClass(), e.toString(), Logger.LogLevel.ERROR);
-                loggerInstance.log(getClass(), "Compute Signature this", Logger.LogLevel.ERROR);
+                return "Error "+e.toString();
             }
-            return "";
         }
+
+        // base64 length
+        public int encodedByteLength(byte[] base64Sign){
+            String signature = Base64.getEncoder().encodeToString(base64Sign); // passed as sg value
+            byte[] decoded = Base64.getDecoder().decode(signature);
+            String temp = String.format("%040x", new BigInteger(1, decoded)); // to calculate length
+            return temp.length();
+        }
+
+        public byte[] hmac256SHAgen(byte[] secretKey, byte[] message, String signAlgorithm){
+            // signAlgorithm - HmacSHA256
+            byte[] hmacSha256 = null;
+            try {
+              Mac mac = Mac.getInstance(signAlgorithm);
+              SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, signAlgorithm);
+              mac.init(secretKeySpec);
+              hmacSha256 = mac.doFinal(message);
+              return hmacSha256;
+            } catch (Exception e) {
+              throw new RuntimeException("Failed to calculate hmac-sha256", e);
+              
+            }
+          }
 }

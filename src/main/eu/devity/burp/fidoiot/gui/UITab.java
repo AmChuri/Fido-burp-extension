@@ -43,7 +43,6 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
     private CertificatePanel certificatePanel;
 
     private SignatureTab signatureTab;
-    private LoggerTab loggerTab;
     private helpPanel helpPanelTab;
 
     private javax.swing.JLabel tabhead;
@@ -66,14 +65,12 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
 
         stdout.println("Initialize FIDO IoT Protocol Analysis UI");
         signatureTab = new SignatureTab(callbacks);
-        loggerTab = new LoggerTab(callbacks);
         certificatePanel = new CertificatePanel();
         helpPanelTab = new helpPanel();
 
         this.addTab("Attacks", attackerTabGroup);
         this.addTab("Certificates", certificatePanel);
         this.addTab("Signature", signatureTab);
-        this.addTab("Logger", loggerTab);
         this.addTab("Help", helpPanelTab);
         // Use Burp UI settings and add as extension tab
         callbacks.customizeUiComponent(this);

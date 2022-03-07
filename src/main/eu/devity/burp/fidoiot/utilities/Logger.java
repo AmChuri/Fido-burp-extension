@@ -42,15 +42,9 @@ public class Logger {
         // Choose correct output stream
         PrintWriter outputStream;
         outputStream = (Objects.equals(logType, LogLevel.ERROR)) ? stderr : stdout;
-
-
-//        if (outputStream != null && logType.ordinal() <= logType) {
-            String logTypeName = logType.name();
-
-            // Print log message
-            String logOutput = String.format("[%s] %s - [%s]: %s ", logTypeName, time, callingClass.getSimpleName(), message);
-            outputStream.println(logOutput);
-//        }
+        String logTypeName = logType.name();
+        String logOutput = String.format("[%s] %s - [%s]: %s ", logTypeName, time, callingClass.getSimpleName(), message);
+        outputStream.println(logOutput);
     }
 
     public String logToString(Class callingClass, String message, LogLevel logType) {
@@ -62,16 +56,10 @@ public class Logger {
         // Choose correct output stream
         PrintWriter outputStream;
         outputStream = (Objects.equals(logType, LogLevel.ERROR)) ? stderr : stdout;
+        String logTypeName = logType.name();
+        String logOutput = String.format("[%s] %s - [%s]: %s ", logTypeName, time, callingClass.getSimpleName(), message);    
+        return logOutput;
 
-
-//        if (outputStream != null && logType.ordinal() <= logType) {
-            String logTypeName = logType.name();
-
-            // Print log message
-            String logOutput = String.format("[%s] %s - [%s]: %s ", logTypeName, time, callingClass.getSimpleName(), message);
-           
-            return logOutput;
-//        }
     }
 
 }
