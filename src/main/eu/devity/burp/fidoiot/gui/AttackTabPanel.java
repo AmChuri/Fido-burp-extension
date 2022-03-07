@@ -14,6 +14,7 @@ import src.main.eu.devity.burp.fidoiot.attacks.SSRFAttack;
 import src.main.eu.devity.burp.fidoiot.attacks.SignatureExcl;
 import src.main.eu.devity.burp.fidoiot.utilities.JsonParser;
 import src.main.eu.devity.burp.fidoiot.utilities.Logger;
+import src.main.eu.devity.burp.fidoiot.utilities.SignatureFn;
 import src.main.eu.devity.burp.fidoiot.utilities.TypeValues;
 import src.main.eu.devity.burp.fidoiot.utilities.TypeValues.*;
 import src.main.eu.devity.burp.fidoiot.utilities.custom.Certificate;
@@ -85,6 +86,7 @@ public class AttackTabPanel extends javax.swing.JPanel {
         ssrfAttack = new SSRFAttack(callbacks, message);
         sigExcl = new SignatureExcl(callbacks, message);
         keyConfusion = new KeyConfusion(callbacks, message);
+        certList = new JsonParser();
         initValues();
         initComponents();
         initCertList();
@@ -94,7 +96,6 @@ public class AttackTabPanel extends javax.swing.JPanel {
     private void initValues() {
         this.request = new String(requestResponse.getRequest());
         this.messageBody = request.substring(requestInfo.getBodyOffset());
-        certList = new JsonParser();
         
     }
 
@@ -173,6 +174,15 @@ public class AttackTabPanel extends javax.swing.JPanel {
         certListCB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 certListCBActionPerformed(evt);
+            }
+        });
+        certListCB.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            }
+            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            }
+            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+                certListCBPopupMenuWillBecomeVisible(evt);
             }
         });
 
@@ -532,12 +542,18 @@ public class AttackTabPanel extends javax.swing.JPanel {
     private void certListCBActionPerformed(java.awt.event.ActionEvent evt)  {//GEN-FIRST:event_certListCBActionPerformed
         List<Certificate> temp = certList.getCertificate();
         int data = certListCB.getSelectedIndex();
-        Certificate test = temp.get(data-1);
-        privKey = getFileKey(test.getFile());
+        Certificate certList = temp.get(data);
+        privKey = getFileKey(certList.getFile());
         sigAlgoCB.setModel(new javax.swing.DefaultComboBoxModel<>(TypeValues.signatureType));
 
     }//GEN-LAST:event_certListCBActionPerformed
 
+    private void certListCBPopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+    // TODO add your handling code here:
+    certList = new JsonParser();
+    initCertList();
+
+    }
     private void proxyInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proxyInputActionPerformed
         // Toggle proxy value
         isProxy = !isProxy;
@@ -598,12 +614,26 @@ public class AttackTabPanel extends javax.swing.JPanel {
             }      
         }else if(this.selectedAttack == TypeValues.ATTACKS.KEYCONFUSION){
             loggerToOutput( "Key Confusion Attack Selected");
-            updatedMessage = keyConfusion.autoAttack(privKey, messageBody, proxyVal, proxyDNS, proxyPort);
-            // loggerToOutput( "Key Confusion Attack Response "+result);
-            this.sendAttackReq(updatedMessage);
+            //updatedMessage = keyConfusion.autoAttack(privKey, messageBody, proxyVal, proxyDNS, proxyPort, data);
+            if(privKey.length() != 0){
+                if(data <= 2){
+                    loggerToOutput( "Performing Key Confusion Attack with values "+TypeValues.keyConfAttackParam[data]);
+                    updatedMessage = keyConfusion.autoAttack(privKey, messageBody, proxyVal, proxyDNS, proxyPort, TypeValues.keyConfAttackParam[data]);
+                    this.sendAttackReq(updatedMessage);
+                } else {
+                    for(String i : TypeValues.keyConfAttackParam ){
+                        loggerToOutput( "Performing Key Confusion Attack with values "+i);
+                        updatedMessage = keyConfusion.autoAttack(privKey, messageBody, proxyVal, proxyDNS, proxyPort, i);
+                        this.sendAttackReq(updatedMessage);
+                    }
+                }
+            } else {
+                loggerToOutput( "Please select proper key to generate HMAC");
+            }
+            
+            // this.sendAttackReq(updatedMessage);
 
         }else if(this.selectedAttack == TypeValues.ATTACKS.SSRF){
-            // need to fix input port 8053
             
             if(data == 0) {
                 if(privKey.length() == 0) {
@@ -617,8 +647,6 @@ public class AttackTabPanel extends javax.swing.JPanel {
                 }
             } else if(data == 1 || data == 2) { 
                
-                // inputVal = checkHost(inputVal, TypeValues.ssrfAttackParam[data]);
-                // ssrfAttack.hostheaderAttack(inputVal +":"+inputPort , proxyVal, proxyDNS, proxyPort);
                 String[] tempKeys = {};
                 ssrfAttackExecutor(TypeValues.ssrfAttackParam[data], data, tempKeys, inputVal, inputPort, proxyVal, proxyDNS, proxyPort);
 
@@ -670,13 +698,17 @@ public class AttackTabPanel extends javax.swing.JPanel {
 
     private void initCertList() {
         List<Certificate> temp = certList.getCertificate();
-        certListStr.add("Select Certificate");
-        // loggerInstance.log(getClass(), "size"+temp.size(), Logger.LogLevel.INFO);
-        //     for (Certificate cert : temp) {
-        //         certListStr.add(cert.getName());
-        //     }
-        //     String[] stringArray = (String[]) certListStr.toArray(new String[0]);
-            certListCB.setModel(new javax.swing.DefaultComboBoxModel<>(tempCertList));
+        String tempCertList[] = new String[temp.size()];
+        // ArrayList<String> tempCertList = new ArrayList<String>();
+        int index = 0;
+        if(temp.size() > 0){
+            for(Certificate cert : temp){
+                // tempCertList.add(cert.getName());
+                tempCertList[index++] = cert.getName();
+            }
+
+        }
+        certListCB.setModel(new javax.swing.DefaultComboBoxModel<>(tempCertList));
     }
 
     private String getFileKey(String filename) {

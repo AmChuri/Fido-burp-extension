@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import src.main.eu.devity.burp.fidoiot.utilities.custom.Certificate;
 
@@ -20,54 +22,80 @@ public class JsonParser {
     String userDir;
     Certificate[] tempList;
     private static final Logger loggerInstance = Logger.getInstance();
+    private static final String certificateFilePath = System.getProperty("user.home") + "/.fido/certificate.json";
 
     public JsonParser() {
         userDir =  System.getProperty("user.home");
 
-        tempList = new Certificate[5];
-        populateCertificate();
+        tempList = new Certificate[getCertCount()];
+        // populateCertificate();
+        readCertFile();
     }
 
 
     public void readCertFile() {
-        String userPath = this.userDir;
-        try {
-            loggerInstance.log(getClass(), userPath+"/Downloads/certlist1.json", Logger.LogLevel.INFO);
-            // create object mapper instance
-            ObjectMapper mapper = new ObjectMapper();
-        
-            loggerInstance.log(getClass(), "hey", Logger.LogLevel.INFO);
-           // List<Certificate> certificates = Arrays.asList(mapper.readValue(Paths.get(userPath+"/Downloads/certlist.json").toFile(), Certificate[].class));
-            Certificate obj = mapper.readValue(new File(userPath+"/Downloads/certlist.json"), Certificate.class);
-            loggerInstance.log(getClass(), "hey", Logger.LogLevel.INFO);
-            loggerInstance.log(getClass(), ""+obj.getName(), Logger.LogLevel.INFO);
-           // for (final Certificate room : certificates) {
-                // Here your room is available
-            //    loggerInstance.log(getClass(), room.getName(), Logger.LogLevel.INFO);
-           // }
-            // print map entries
-            //for (Map.Entry<?, ?> entry : map.entrySet()) {
-            //    loggerInstance.log(getClass(), entry.getKey() + "=" + entry.getValue(), Logger.LogLevel.INFO);
-            //}
-        
-        } catch (Exception ex) {
-            loggerInstance.log(getClass(), ex.getMessage(), Logger.LogLevel.INFO);
-            ex.printStackTrace();
+        File certFile = new File(certificateFilePath);
+
+        if (!certFile.exists()) {
+            loggerInstance.log(getClass(), "Config file does not exist!", Logger.LogLevel.ERROR);
+            return;
+        }
+
+        if (!certFile.isDirectory() && certFile.canRead()) {
+
+            JSONParser jsonParser = new JSONParser();
+
+            try {
+                FileReader certFileReader = new FileReader(certFile);
+                JSONObject certObj = (JSONObject) jsonParser.parse(certFileReader);
+                JSONArray array = (JSONArray) certObj.get("list");
+                for (int i = 0; i < array.size(); i++) {
+                    JSONObject obj = (JSONObject) array.get(i);
+                    String name = (String) obj.get("name");
+                    String filePath = (String) obj.get("file");
+                    String type = (String) obj.get("type");
+                    populateCertificate(i, filePath,name, type);
+                  }
+
+            } catch ( Exception e) {
+                loggerInstance.log(getClass(), "Config file can not be read!\n" + e.toString(), Logger.LogLevel.ERROR);
+            }
+        } else {
+            loggerInstance.log(getClass(), "The config file is not readable or a directory: " + certificateFilePath, Logger.LogLevel.ERROR);
         }
         
     }
 
-    public void populateCertificate(){
-        tempList[0] = new Certificate("/home/amey/thesis/keys/ocs/type22pubkey.pem", "Type 22 Public Key", "EC");
-        tempList[1] = new Certificate("/home/amey/thesis/keys/ocs/type22privec256.pem", "Type 22 Private key", "EC");
-        tempList[2] = new Certificate("/home/amey/thesis/keys/ocs/privec256.pem", "Custom EC 256", "EC");
-        tempList[3] = new Certificate("/home/amey/thesis/keys/ocs/privec384.pem", "Custom EC 384", "EC");
-        tempList[3] = new Certificate("/home/amey/thesis/keys/ocs/privrsa2048-owner.pem", "Custom RSA 2048", "RSA");
+    public void populateCertificate(int id, String filePath, String name, String type){
+        tempList[id] = new Certificate(filePath, name, type);
+        // tempList[0] = new Certificate("/home/amey/thesis/keys/ocs/type22pubkey.pem", "Type 22 Public Key", "EC");
+        // tempList[1] = new Certificate("/home/amey/thesis/keys/ocs/type22privec256.pem", "Type 22 Private key", "EC");
+        // tempList[2] = new Certificate("/home/amey/thesis/keys/ocs/privec256.pem", "Custom EC 256", "EC");
+        // tempList[3] = new Certificate("/home/amey/thesis/keys/ocs/privec384.pem", "Custom EC 384", "EC");
+        // tempList[3] = new Certificate("/home/amey/thesis/keys/ocs/privrsa2048-owner.pem", "Custom RSA 2048", "RSA");
     }
 
     public List<Certificate> getCertificate(){
         List<Certificate> list = Arrays.asList(tempList);
         return list;
+    }
+
+    private int getCertCount(){
+        File certFile = new File(certificateFilePath);
+        if (!certFile.isDirectory() && certFile.canRead()) {
+
+            JSONParser jsonParser = new JSONParser();
+
+            try {
+                FileReader certFileReader = new FileReader(certFile);
+                JSONObject certObj = (JSONObject) jsonParser.parse(certFileReader);
+                JSONArray array = (JSONArray) certObj.get("list");
+                return array.size();
+            } catch ( Exception e) {
+                loggerInstance.log(getClass(), "Config file can not be read!\n" + e.toString(), Logger.LogLevel.ERROR);
+            }
+        }
+        return 0;
     }
 
 

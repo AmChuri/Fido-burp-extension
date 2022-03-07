@@ -37,7 +37,6 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
     private JSplitPane splitPane;
     private IMessageEditor requestViewer;
     private IMessageEditor responseViewer;
-    private AttackTab attackTab;
 
     private AttackTabPanel attackTabPanel;
     private CertificatePanel certificatePanel;
@@ -110,8 +109,6 @@ public class UITab extends JTabbedPane implements ITab, IContextMenuFactory  {
                         int port = httpService.getPort();
 
                         // Create new attacker panel for this message
-                        AttackTab attackTab = new AttackTab(callbacks, message);
-
                         AttackTabPanel attackTabPanel = new AttackTabPanel(callbacks, message);
                         int newTabCounter = getNewGlobalTabCounter();
                         final String captionTitleValue = Integer.toString(newTabCounter);

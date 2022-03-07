@@ -62,7 +62,7 @@ public class SSRFAttack {
         int i = 0;
         int replaceid = 0;
         for(String s: headers){
-            if(s.contains("Host")){
+            if(s.contains("Host") || s.contains("HOST")){
                 replaceid = i;
             }
             i++;
@@ -171,10 +171,8 @@ public class SSRFAttack {
         String reqStr = beforeSign + modSignBody + closingStr;
 
         loggerInstance.log(getClass(), SignValue  , Logger.LogLevel.INFO);
-        loggerInstance.log(getClass(), reqStr  , Logger.LogLevel.INFO);
 
         byte[] updatedReq = this.generateRequest(reqStr, proxyVal, proxyDNS, proxyPort);
-        // this.sendAttackReq();
         return updatedReq;
     }
 

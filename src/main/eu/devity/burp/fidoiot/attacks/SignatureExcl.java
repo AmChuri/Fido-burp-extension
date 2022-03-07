@@ -203,9 +203,7 @@ public class SignatureExcl {
                 this.httpService = helpers.buildHttpService(proxyDNS, proxyPort, this.httpService.getProtocol());
             }
             updateMessage = helpers.buildHttpMessage(headers, newStr.getBytes());
-            // this.sendAttackReq();
-return updateMessage;
-            // return resultMsgBody;
+            return updateMessage;
         }
     }
 

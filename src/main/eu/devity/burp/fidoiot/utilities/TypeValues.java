@@ -13,7 +13,7 @@ public class TypeValues {
 
     public static String signExclSubAtk[] = {"0 Value", "NULL", "None", "Remove signature", "ALL"};
 
-    public static String keyConfSubAtk[] = {"PKCS Format Key", "String Format", "No Header Footer", "ALL"};
+    public static String keyConfSubAtk[] = {"PEM Format Key", "String Format", "No Header Footer", "ALL"};
 
     public static String ssrfSubAtk[] = {"SSRF", "Host Header SSRF", "X-Host Header SSRF", "ALL"};
 
@@ -45,6 +45,8 @@ public class TypeValues {
 
     public static String signExclAttackParam[] = {"0", "null", "None", "remove"};
 
+    public static String keyConfAttackParam[] = {"PEM", "String", "NoHeadFoot"};
+    
     public static String ssrfAttackParam[] = {"bodySigning", "Host", "X-Host"};
 
     

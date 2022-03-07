@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -26,6 +27,9 @@ public class CertificatePanel extends javax.swing.JPanel {
     private static final String certificateFilePath = System.getProperty("user.home") + "/.fido/certificate.json";
     private static final Logger loggerInstance = Logger.getInstance();
     private static DefaultListModel<String> certListModel = new DefaultListModel<>();
+    public static String certIndex[] = {"EC", "RSA"};
+    JSONArray mainArray;
+
     /**
      * Creates new form CertificatePanel
      */
@@ -44,17 +48,12 @@ public class CertificatePanel extends javax.swing.JPanel {
             if (!certFile.exists()) {
                 loggerInstance.log(getClass(), "Config file not found! Creating it...", Logger.LogLevel.DEBUG);
                 certFile.createNewFile();
-                saveCert();
-
                 // Update UI elements
                 certListModel.clear();
-                // for (String param : defaultParameterNames) {
-                //     certListModel.addElement(param);
-                // }
 
             } else {
                 loggerInstance.log(getClass(), "Loading Certificate file.", Logger.LogLevel.DEBUG);
-                loadCert();
+                loadCertlist();
             }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, e.toString(), "Error loading certificate file", JOptionPane.ERROR_MESSAGE);
@@ -200,6 +199,7 @@ public class CertificatePanel extends javax.swing.JPanel {
         );
 
         certList.setBorder(javax.swing.BorderFactory.createTitledBorder("Certificate List"));
+        certList.setModel(certListModel);
         certList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         listScrollPane.setViewportView(certList);
         certList.getAccessibleContext().setAccessibleName("");
@@ -311,6 +311,15 @@ public class CertificatePanel extends javax.swing.JPanel {
 
     private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
         // TODO add your handling code here:
+        getCertList();
+        
+        for (int certIndex : certList.getSelectedIndices()) {
+            
+            certListModel.removeElementAt(certIndex);
+            mainArray.remove(certIndex);
+            updateCertFile();
+        }
+        outputText.setText("Certificate removed from the list");
     }//GEN-LAST:event_deleteBtnActionPerformed
 
     private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
@@ -328,13 +337,20 @@ public class CertificatePanel extends javax.swing.JPanel {
             flag = false;
         }
         if(flag){
-
+            certListModel.getSize();
+            outputText.setText("Certificate added");
+            certListModel.addElement(fileName);
+            saveCert(filePath, fileName, certIndex[index]);
+            selectText.setText("");
+            nameInput.setText("");
         }
 
     }//GEN-LAST:event_saveBtnActionPerformed
 
-    private void saveCert() {
+    private void saveCert(String filePath, String fileName, String fileType) {
         File certFile = new File(certificateFilePath);
+        
+        getCertList();
 
         if (!certFile.exists()) {
             loggerInstance.log(getClass(), "Certificate file does not exist!", Logger.LogLevel.ERROR);
@@ -344,31 +360,11 @@ public class CertificatePanel extends javax.swing.JPanel {
         if (!certFile.isDirectory() && certFile.canWrite()) {
 
             JSONObject certObj = new JSONObject();
-            certObj.put("file", "test");
-            certObj.put("name", "test");
-            certObj.put("type", "test");
-
-            try {
-                FileWriter certFileWriter = new FileWriter(certFile);
-
-                try {
-                    certFileWriter.write(certObj.toJSONString());
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(this, "The config file can not be written!\n\nError:\n" + e.toString(), "Error writing config file",
-                            JOptionPane.ERROR_MESSAGE);
-                    loggerInstance.log(getClass(), "Config file can not be written!\n" + e.toString(), Logger.LogLevel.ERROR);
-                }
-
-                certFileWriter.flush();
-                certFileWriter.close();
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "The config file can not be written!\n\nError:\n" + e.toString(), "Error writing config file",
-                        JOptionPane.ERROR_MESSAGE);
-                loggerInstance.log(getClass(), "Config file can not be written!\n" + e.toString(), Logger.LogLevel.ERROR);
-            } catch (Exception e) {
-                loggerInstance.log(getClass(), e.toString(), Logger.LogLevel.ERROR);
-            }
-
+            certObj.put("file", filePath);
+            certObj.put("name", fileName);
+            certObj.put("type", fileType);
+            mainArray.add(certObj);
+            updateCertFile();
         } else {
             JOptionPane.showMessageDialog(this, "The config file is not writable: " + certificateFilePath, "Error writing config file", JOptionPane.ERROR_MESSAGE);
             loggerInstance.log(getClass(), "Config file is not writable: " + certificateFilePath, Logger.LogLevel.ERROR);
@@ -376,42 +372,68 @@ public class CertificatePanel extends javax.swing.JPanel {
     }
 
     @SuppressWarnings("unchecked")
-    private void loadCert() {
-        File certFile = new File(certificateFilePath);
+    private void loadCertlist() {
+                getCertList();
+                JSONArray array = mainArray;
+                certListModel.clear();
+                for (int i = 0; i < array.size(); i++) {
+                    JSONObject obj = (JSONObject) array.get(i);
+                    String temp = (String) obj.get("name");
+                    certListModel.addElement(temp);
+                  }
 
-        if (!certFile.exists()) {
-            loggerInstance.log(getClass(), "Config file does not exist!", Logger.LogLevel.ERROR);
-            return;
-        }
-
-        // if (!certFile.isDirectory() && certFile.canRead()) {
-
-        //     JSONParser jsonParser = new JSONParser();
-
-        //     try {
-        //         FileReader certFileReader = new FileReader(certFile);
-        //         JSONObject certObj = (JSONObject) jsonParser.parse(certFileReader);
-
-
-        //         certListModel.clear();
-        //         for (String param : (List<String>) certObj.get("name")) {
-        //             certListModel.addElement(param);
-        //         }
-
-        //     } catch ( Exception e) {
-        //         JOptionPane.showMessageDialog(this, "The config file can not be read!\n\nError:\n" + e.toString(), "Error reading config file",
-        //                 JOptionPane.ERROR_MESSAGE);
-        //         loggerInstance.log(getClass(), "Config file can not be read!\n" + e.toString(), Logger.LogLevel.ERROR);
-        //     }
-        // } else {
-        //     JOptionPane.showMessageDialog(this, "The config file is not readable or a directory: " + certificateFilePath, "Config file not readable",
-        //             JOptionPane.ERROR_MESSAGE);
-        //     loggerInstance.log(getClass(), "The config file is not readable or a directory: " + certificateFilePath, Logger.LogLevel.ERROR);
-        // }
     }
 
+    @SuppressWarnings("unchecked")
+    private void getCertList() {
+        File certFile = new File(certificateFilePath);
+        if (!certFile.exists()) {
+            loggerInstance.log(getClass(), "Config file does not exist!", Logger.LogLevel.ERROR);
+        }
 
+        if (!certFile.isDirectory() && certFile.canRead()) {
 
+            JSONParser jsonParser = new JSONParser();
+
+            try {
+                FileReader certFileReader = new FileReader(certFile);
+                JSONObject certObj = (JSONObject) jsonParser.parse(certFileReader);
+                mainArray = (JSONArray) certObj.get("list");
+            } catch ( Exception e) {
+                loggerInstance.log(getClass(), "Config file can not be read!\n" + e.toString(), Logger.LogLevel.ERROR);
+            }
+        } else {
+            loggerInstance.log(getClass(), "The config file is not readable or a directory: " + certificateFilePath, Logger.LogLevel.ERROR);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void updateCertFile() {
+        File certFile = new File(certificateFilePath);
+        JSONObject mainListObj = new JSONObject();
+        mainListObj.put("list",mainArray);
+        try {
+            FileWriter certFileWriter = new FileWriter(certFile);
+
+            try {
+                certFileWriter.write(mainListObj.toJSONString());
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "The config file can not be written!\n\nError:\n" + e.toString(), "Error writing config file",
+                        JOptionPane.ERROR_MESSAGE);
+                loggerInstance.log(getClass(), "Config file can not be written!\n" + e.toString(), Logger.LogLevel.ERROR);
+            }
+
+            certFileWriter.flush();
+            certFileWriter.close();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "The config file can not be written!\n\nError:\n" + e.toString(), "Error writing config file",
+                    JOptionPane.ERROR_MESSAGE);
+            loggerInstance.log(getClass(), "Config file can not be written!\n" + e.toString(), Logger.LogLevel.ERROR);
+        } catch (Exception e) {
+            loggerInstance.log(getClass(), e.toString(), Logger.LogLevel.ERROR);
+        }
+
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList<String> certList;
     private javax.swing.JComboBox<String> certType;

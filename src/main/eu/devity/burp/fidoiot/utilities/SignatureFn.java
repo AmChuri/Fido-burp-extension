@@ -35,7 +35,6 @@ public class SignatureFn {
             loggerInstance.log(getClass(), "Compute Signature", Logger.LogLevel.INFO);
             MessageDigest md;
             String finalSign = "";
-            
             try {
                 KeyFactory kf = KeyFactory.getInstance(keyinstanceType);
                 PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyContent));
@@ -79,5 +78,28 @@ public class SignatureFn {
               throw new RuntimeException("Failed to calculate hmac-sha256", e);
               
             }
+          }
+
+          // key formatter
+          public String keyNoHeadFootFormat(String pemKey){
+            String pubKey;
+            if(pemKey.contains("PUBLIC")){
+              pubKey = pemKey.replaceAll("(-+BEGIN PUBLIC KEY-+\\r?\\n|-+END PUBLIC KEY-+\\r?\\n?)", "");
+            } else {
+              pubKey = pemKey.replaceAll("(-+BEGIN PRIVATE KEY-+\\r?\\n|-+END PRIVATE KEY-+\\r?\\n?)", "");
+            }
+            loggerInstance.log(getClass(), pubKey, Logger.LogLevel.INFO);
+            return pubKey;
+          }
+          public String keyStringFormat(String pemKey){
+            String pubKey;
+            if(pemKey.contains("PUBLIC")){
+                pubKey = pemKey.replaceAll("(-+BEGIN PUBLIC KEY-+\\r?\\n|-+END PUBLIC KEY-+\\r?\\n?)", "");
+            } else {
+                pubKey = pemKey.replaceAll("(-+BEGIN PRIVATE KEY-+\\r?\\n|-+END PRIVATE KEY-+\\r?\\n?)", "");
+            }
+            pubKey = pubKey.replace("\n", "").replace("\r", "");
+            loggerInstance.log(getClass(), pubKey, Logger.LogLevel.INFO);
+            return pubKey;
           }
 }
