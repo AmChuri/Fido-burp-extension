@@ -38,3 +38,7 @@ gradle-app.setting
 .idea/
 
 .gradle
+
+bin/
+
+.DS_Store

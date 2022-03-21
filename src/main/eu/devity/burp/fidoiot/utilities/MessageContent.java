@@ -1,7 +1,9 @@
-package burp;
+package src.main.eu.devity.burp.fidoiot.utilities;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.List;
+
+import burp.IParameter;
 
 /**
  * Read Content of the request
